@@ -67,8 +67,18 @@ var Sandbox = {
 
               lock: function () {
                   return core.dom.lock();
+              },
 
-              }
+              chart: function () {
+
+              },
+
+              template: {
+
+                  panel: function () {
+                      return $('#template-panel')
+                  }
+              },
 
             };
         },

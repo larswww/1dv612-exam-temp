@@ -1,11 +1,11 @@
 'use strict';
-var ioc = require('socket.io-client');
+//var ioc = require('socket.io-client');
 var Sandbox = require('./sandbox');
-
 
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
+    var coreSocket = io('http://localhost:3001');
 
     return {
         debug: function (on) {
@@ -16,12 +16,12 @@ var CORE = (function () {
             var temp;
             if (typeof moduleID === 'string' && typeof creator === 'function') {
                 temp = creator(Sandbox.create(this, moduleID));
-                if (temp.init && temp.destroy && typeof temp.init === 'function' && typeof temp.destroy === 'function') {
+                if (temp.init && typeof temp.init === 'function' && temp.destroy && typeof temp.destroy === 'function') {
+                    temp = null;
                     moduleData[moduleID] = {
                         create: creator,
                         instance: null,
                     };
-                    temp = null;
                     this.start(moduleID);
                 } else {
                     this.log(1, 'Module "' + moduleID + '" Registration: FAILED: instance has no init or destroy functions');
@@ -51,7 +51,7 @@ var CORE = (function () {
 
         stop: function (moduleID) {
             var data;
-            if (data = moduleData[moduleId] && data.instance) {
+            if (data = moduleData[moduleID] && data.instance) {
                 data.instance.destroy();
                 data.instance = null;
             } else {
@@ -104,20 +104,23 @@ var CORE = (function () {
         log: function (severity, message) {
             if (debug) {
                 console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](message);
-            } else {
+            } else {br
                 // send to the server
             }
         },
 
         dom: {
             socket: function () {
-                return ioc();
-
+                return coreSocket;
             },
 
             lock: function () {
                 return new Auth0Lock('FxN8RQSXo1kNnWXfvFgTYn8ZtEy4esPc', 'lw222ii.auth0.com');
 
+            },
+
+            chart: function (type, settings) {
+                return new Morris[type](settings);
             },
 
             query: function (selector, context) {
