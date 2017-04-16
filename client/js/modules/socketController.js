@@ -12,7 +12,7 @@ CORE.create_module('sockets', function (sb) {
 
        });
 
-       socket.on('github', function (data) {
+       socket.on('octonode', function (data) {
            console.log(data);
        });
 
@@ -33,10 +33,8 @@ CORE.create_module('sockets', function (sb) {
        });
    };
     
-    var onAuthenticate = function (data) {
-
-        socket.on('authenticate')
-        
+    var onAuthenticate = function (profile) {
+        socket.emit('authenticated', profile)
     };
     
     return {

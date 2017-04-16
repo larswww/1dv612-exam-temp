@@ -7,10 +7,7 @@ CORE.create_module('hooks', function (sb) {
         var socket = sb.socket();
 
         socket.emit('create-hook', {url: hookUrl})
-
-
     };
-
 
     return {
         init: function () {

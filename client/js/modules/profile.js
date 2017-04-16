@@ -6,7 +6,6 @@ CORE.create_module('logout', function (sb) {
     var loginButton;
 
     function loggedIn(data) {
-        debugger;
         var template = $('#template-login')[0].content.children;
         var shortname = template["0"].children["0"].childNodes[3];
         var fullname = template["0"].childNodes[3].childNodes[1].children["0"].children["0"].children[1].children["0"];

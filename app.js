@@ -2,18 +2,47 @@
 
 let express = require('express');
 let http = require('http');
-let socketioJwt = require('socketio-jwt');
 let dotenv = require('dotenv');
+let cookieParser = require('cookie-parser');
+let session = require('express-session');
+let passport = require('passport');
+let bodyParser = require('body-parser');
+let Auth0Strategy = require('passport-auth0');
 let handlebars = require('express-handlebars').create({
     defaultLayout: 'main',
 });
 
 let testGithub = require('./modules/githubApi');
 
-let app = express();
 let server;
 
 dotenv.load();
+
+let strategy = new Auth0Strategy({
+    domain:       process.env.AUTH0_DOMAIN,
+    clientID:     process.env.AUTH0_CLIENT_ID,
+    clientSecret: process.env.AUTH0_CLIENT_SECRET,
+    callbackURL:  process.env.AUTH0_CALLBACK_URL || 'http://localhost:3001/callback'
+}, function(accessToken, refreshToken, extraParams, profile, done) {
+    // accessToken is the token to call Auth0 API (not needed in the most cases)
+    // extraParams.id_token has the JSON Web Token
+    // profile has all the information from the user
+    console.log(accessToken, refreshToken, extraParams, profile, done);
+    return done(null, profile);
+});
+
+passport.use(strategy);
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    done(null, user);
+});
+
+let app = express();
+
 
 function startServer() {
 
@@ -23,47 +52,24 @@ function startServer() {
 
     let io = require('socket.io')(server);
     testGithub(io);
-    //
-    // io.on('connection', function (noAuthSocket) {
-    //
-    //     noAuthSocket.on('start', function () {
-    //         console.log('start');
-    //         testGithub(noAuthSocket);
-    //
-    //     });
-    //
-    //
-    //     //TODO couldn't get the JWT auth working so temp dirty solution to move on.
-    //     noAuthSocket.on('authenticate', function (token) {
-    //         console.log('noAuth', token);
-    //     });
-    //
-    //     io.use(socketioJwt.authorize({
-    //         secret: process.env.AUTH0_CLIENT_SECRET,
-    //         timeout: 15000 // 15 seconds to send the authentication message
-    //     }));
-    // }).on('authenticated', function(socket) {
-    //         socket.on('authenticate', function (token) {
-    //            console.log('auth', token);
-    //         });
-    //
-    //     //this socket is authenticated, we are good to handle more events from it.
-    //     console.log('hello! ' + socket.decoded_token.name);
-    // });
 }
 
-if (require.main === module) {
-    // app running directly
-    startServer();
-} else {
-    // app imported
-    module.exports = startServer;
-}
 
 app.set('port', process.env.PORT);
 
 app.use(express.static(__dirname + '/public'));
 app.use('/bower_components', express.static(__dirname + '/bower_components'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(session({
+    secret: 'shhhhhhhhh',
+    resave: true,
+    saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
@@ -93,3 +99,11 @@ app.use(function (err, req, res) {
     res.status(500);
     res.render('500');
 });
+
+if (require.main === module) {
+    // app running directly
+    startServer();
+} else {
+    // app imported
+    module.exports = startServer;
+}

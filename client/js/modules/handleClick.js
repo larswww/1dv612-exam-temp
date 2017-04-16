@@ -10,6 +10,8 @@ CORE.create_module('clickHandler', function (sb) {
         var hookUrl = event.currentTarget.getAttribute('data-hook');
         var org = event.currentTarget.getAttribute('data-org');
 
+        debugger;
+
         sb.notify({
             type: 'create-hook',
             data: {

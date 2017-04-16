@@ -2,7 +2,7 @@
 
 var CORE = require('../core');
 
-CORE.create_module('github', function (sb) {
+CORE.create_module('octonode', function (sb) {
 
     return {
         init: function () {
