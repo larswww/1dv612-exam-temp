@@ -205,7 +205,10 @@ var CORE = require('../core');
 
 CORE.create_module('auth', function (sb) {
     var button;
+    var userProfile;
+    var userToken;
 
+    var id_token = localStorage.getItem('id_token');
     var lock = new Auth0Lock(
         'FxN8RQSXo1kNnWXfvFgTYn8ZtEy4esPc',
         'lw222ii.auth0.com',
@@ -216,28 +219,44 @@ CORE.create_module('auth', function (sb) {
         }
     );
 
+    var getProfile = function (idToken) {
+        lock.getProfile(idToken, function (err, profile) {
+            if (err) {
+                console.log('Cannot get user', err);
+                return;
+            }
+            console.log('connected and authenticated');
+            userProfile = profile;
+            localStorage.setItem('id_token', idToken);
+            userToken = idToken;
+            activateSocket(userProfile, idToken)
+    })};
+
+    if (id_token) {
+        getProfile(id_token);
+    }
+
+
     lock.on("authenticated", function (authResult) {
+        debugger;
+        getProfile(authResult.idToken);
         lock.getProfile(authResult.idToken, function (error, profile) {
             if (error) {
                 // Handle error
                 return;
             }
 
-            localStorage.setItem('token', authResult.idToken);
+            localStorage.setItem('id_token', authResult.idToken);
             localStorage.setItem('profile', JSON.stringify(profile));
             activateSocket(profile, authResult);
         });
     });
 
-
-    var activateSocket = function (userProfile, authResult) {
-        debugger;
+    var activateSocket = function (userProfile, idToken) {
         sb.notify({
             type: 'logged-in',
             data: userProfile
         });
-
-        userProfile.authResult = authResult;
 
         sb.notify({
             type: 'socket-authenticate',
@@ -329,6 +348,8 @@ CORE.create_module('dashboard', function (sb) {
 
     var createOrganisations = function (orgs) {
 
+        debugger;
+
         var panelDefault = $('<div class="panel panel-default">');
         var panelHeading = $('<div class="panel-heading">Your Organisations</div>');
 
@@ -391,7 +412,7 @@ var CORE = require('../core');
 
 CORE.create_module('clickHandler', function (sb) {
 
-    var interfaceClick = function (event) {
+    var subscribeHook = function (event) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -406,8 +427,9 @@ CORE.create_module('clickHandler', function (sb) {
                 url: hookUrl,
                 org: org
             }
-        })
+        });
 
+        sb.removeEvent(event.currentTarget, 'click', subscribeHook);
     };
 
 
@@ -427,7 +449,8 @@ CORE.create_module('clickHandler', function (sb) {
             var subButtons = $('button.subs');
 
             for (var i = 0; i < subButtons.length; i += 1) {
-                subButtons[i].addEventListener("click", interfaceClick);
+
+                sb.addEvent(subButtons[i], 'click', subscribeHook);
             }
 
         }
@@ -526,10 +549,15 @@ CORE.create_module('sockets', function (sb) {
 
        socket.on('github-organisations', function (data) {
            console.log('git orgs');
+           debugger;
            sb.notify({
                type: 'github-organisations',
                data: data
            })
+       });
+
+       socket.on('org-repos', function (data) {
+           console.log('org-repos', data);
        });
    };
     

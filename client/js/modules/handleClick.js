@@ -3,7 +3,7 @@ var CORE = require('../core');
 
 CORE.create_module('clickHandler', function (sb) {
 
-    var interfaceClick = function (event) {
+    var subscribeHook = function (event) {
         event.preventDefault();
         event.stopPropagation();
 
@@ -18,8 +18,9 @@ CORE.create_module('clickHandler', function (sb) {
                 url: hookUrl,
                 org: org
             }
-        })
+        });
 
+        sb.removeEvent(event.currentTarget, 'click', subscribeHook);
     };
 
 
@@ -39,7 +40,8 @@ CORE.create_module('clickHandler', function (sb) {
             var subButtons = $('button.subs');
 
             for (var i = 0; i < subButtons.length; i += 1) {
-                subButtons[i].addEventListener("click", interfaceClick);
+
+                sb.addEvent(subButtons[i], 'click', subscribeHook);
             }
 
         }

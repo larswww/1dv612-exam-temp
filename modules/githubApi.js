@@ -21,69 +21,78 @@ function testGithub(io) {
         socket.on('authenticated', profile => {
 
             github.profile = profile;
-            github.createClient(profile.user_id).then(() => {
-                basicGithubRequests();
+            github.createClient(profile.user_id).then(client => {
+                basicGithubRequests(client, socket);
+                github.client = client;
             })
 
         });
 
+        socket.on('create-hook', org => {
 
-        let basicGithubRequests = function () {
+            console.log(org.url.org);
 
-            let me = octonode.me();
+            let ghorg = github.client.org(org.url.org);
 
-            octonode.get('/user', {}, function (err, status, body, headers) {
+            ghorg.repos(function (err, repos) {
+            });
+
+            ghorg.hook({
+                "name": "web",
+                "active": true,
+                "events": ["push", "pull_request"],
+                "config": {
+                    "url": "http://requestb.in/1ddydc81",
+                    "content_type": "json",
+                    "insecure_ssl": 1
+                }
+            }, function (err, s, b, h) {
+                console.log(err, s, b, h)
+            });
+
+            ghorg.hooks(function (s, d) {
+            })
+        });
+
+        let basicGithubRequests = function (client) {
+
+            let me = client.me();
+
+            client.get('/user', {}, function (err, status, body, headers) {
+                console.log(err, status, body, headers);
                 if (body) socket.emit('github-profile', body);
             });
 
-            me.info(function (user) {
+            me.info(function (err, user) {
                 console.log(user);
             });
 
-            me.orgs(function (orgs) {
+            me.orgs(function (err, orgs) {
 
+                socket.emit('github-organisations', { data: orgs });
+
+                sendReposForEachOrganisation(client, socket, orgs);
                 console.log(orgs);
 
             });
 
-            me.repos(function (repos) {
+            me.repos(function (err, repos) {
 
                 console.log(repos);
 
+                repos.forEach(repo => {
+                    console.log(repo.owner.login);
+                })
             });
 
-            me.issues({}, function (issues) {
+            me.issues({}, function (err, issues) {
                 console.log(issues)
             });
 
-            me.teams({}, function (teams) {
+            me.teams({}, function (err, teams) {
                 console.log(teams);
             });
-
-
         };
-
-        socket.on('create-hook', function (data) {
-            // debugger;
-            //
-            // console.log(data.url.org);
-            //
-            // ghorg.hook({
-            //     "name": "web",
-            //     "active": true,
-            //     "events": ['push', 'pull_request'],
-            //     "config": {
-            //         "url": 'http://requestb.in/1nktvf71'
-            //     }
-            // }, function (err, s, b, h) {
-            //     console.log(err, b, h)
-            // });
-            //
-            // ghorg.hooks(function (s, d) {
-            //     console.log(s, d);
-            // })
-
-        });
 
 
         //
@@ -173,17 +182,34 @@ function testGithub(io) {
 //TODO validation/getters/setters
 function GithubClient() {
 
-
 }
+
+
+let sendReposForEachOrganisation = function (client, socket, orgs) {
+
+    let sendRepos = function (err, repos) {
+        if (err) console.error(err);
+
+        if (repos) socket.emit('org-repos', { data: repos })
+    };
+
+    orgs.forEach(org => {
+        let ghorg = client.org(org.login);
+        ghorg.repos(sendRepos);
+    });
+
+
+
+};
 
 GithubClient.prototype.createClient = function (user_id) {
 
     return new Promise(function (resolve, reject) {
 
         auth0IdpToken(user_id).then(function (token) {
-            octonode.client(token);
+            let client = octonode.client(token);
             //todo check health of client and reject()?
-            resolve();
+            resolve(client);
         });
 
     });

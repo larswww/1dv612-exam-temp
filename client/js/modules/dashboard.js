@@ -34,6 +34,8 @@ CORE.create_module('dashboard', function (sb) {
 
     var createOrganisations = function (orgs) {
 
+        debugger;
+
         var panelDefault = $('<div class="panel panel-default">');
         var panelHeading = $('<div class="panel-heading">Your Organisations</div>');
 

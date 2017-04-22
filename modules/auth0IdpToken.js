@@ -14,10 +14,18 @@ module.exports = function (clientId) {
         request(options, function (error, response, body) {
             if (error) reject(error);
 
-            let obj = JSON.parse(body);
-            let access_token = obj.identities[0].access_token;
+            if (body) {
 
-            resolve(access_token);
+                let obj = JSON.parse(body);
+                let access_token = obj.identities[0].access_token;
+
+                resolve(access_token);
+            } else {
+                console.error(response);
+                reject(response);
+            }
+
+
         });
     });
 };

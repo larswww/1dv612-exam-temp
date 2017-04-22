@@ -26,10 +26,15 @@ CORE.create_module('sockets', function (sb) {
 
        socket.on('github-organisations', function (data) {
            console.log('git orgs');
+           debugger;
            sb.notify({
                type: 'github-organisations',
                data: data
            })
+       });
+
+       socket.on('org-repos', function (data) {
+           console.log('org-repos', data);
        });
    };
     
