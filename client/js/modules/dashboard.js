@@ -34,8 +34,6 @@ CORE.create_module('dashboard', function (sb) {
 
     var createOrganisations = function (orgs) {
 
-        debugger;
-
         var panelDefault = $('<div class="panel panel-default">');
         var panelHeading = $('<div class="panel-heading">Your Organisations</div>');
 
@@ -44,13 +42,13 @@ CORE.create_module('dashboard', function (sb) {
         var orgContent = $('<div class="tab-content"></div>');
 
         orgs.data.forEach(function (orgObj) {
-           var pill = $('<li><a href="#' + orgObj.login + '-pills" data-toggle="tab" aria-expanded="true">' + orgObj.login + '</a></li>');
-           var desc = $('<div class="tab-pane fade active in" id="' + orgObj.login + '-pills"> <a href="' + orgObj.url +'">' + orgObj.login + '</a> <p>' + orgObj.description + '</p></div>')
-            var subButton = $('<button type="button" class="btn btn-primary subs" data-org="' + orgObj.login + '" data-hook="'+ orgObj.hooks_url + '">Subscribe</button>')
+            var pill = $('<li><a href="#' + orgObj.login + '-pills" data-toggle="tab" aria-expanded="true">' + orgObj.login + '</a></li>');
+            var desc = $('<div class="tab-pane fade active in" id="' + orgObj.login + '-pills"> <a href="' + orgObj.url + '">' + orgObj.login + '</a> <p>' + orgObj.description + '</p></div>')
+            var subButton = $('<button type="button" class="btn btn-primary subs" data-org="' + orgObj.login + '" data-hook="' + orgObj.hooks_url + '">Subscribe</button>');
 
             pill.appendTo(orgNav);
-           subButton.appendTo(desc);
-           desc.appendTo(orgContent);
+            subButton.appendTo(desc);
+            desc.appendTo(orgContent);
 
         });
 
@@ -60,11 +58,11 @@ CORE.create_module('dashboard', function (sb) {
         orgList.appendTo(panelDefault);
 
         console.log(orgList);
-       $('#page-here').append(panelDefault);
+        $('#page-here').append(panelDefault);
 
-       sb.notify({
-           type: 'org-buttons'
-       });
+        sb.notify({
+            type: 'org-buttons'
+        });
     };
 
     return {

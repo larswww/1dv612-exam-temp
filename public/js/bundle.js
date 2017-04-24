@@ -190,7 +190,7 @@ var CORE = (function () {
 
 module.exports = CORE;
 
-},{"./sandbox":8}],2:[function(require,module,exports){
+},{"./sandbox":9}],2:[function(require,module,exports){
 var core = require('./core');
 var Sandbox = require('./sandbox');
 var profileModule = require('./modules/profile');
@@ -198,7 +198,8 @@ var socketModule = require('./modules/socketController');
 var dashboard = require('./modules/dashboard');
 var handleClick = require('./modules/handleClick');
 var createHook = require('./modules/createHook');
-},{"./core":1,"./modules/createHook":3,"./modules/dashboard":4,"./modules/handleClick":5,"./modules/profile":6,"./modules/socketController":7,"./sandbox":8}],3:[function(require,module,exports){
+var serviceWorker = require('./modules/serviceWorker');
+},{"./core":1,"./modules/createHook":3,"./modules/dashboard":4,"./modules/handleClick":5,"./modules/profile":6,"./modules/serviceWorker":7,"./modules/socketController":8,"./sandbox":9}],3:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -261,8 +262,6 @@ CORE.create_module('dashboard', function (sb) {
 
     var createOrganisations = function (orgs) {
 
-        debugger;
-
         var panelDefault = $('<div class="panel panel-default">');
         var panelHeading = $('<div class="panel-heading">Your Organisations</div>');
 
@@ -271,13 +270,13 @@ CORE.create_module('dashboard', function (sb) {
         var orgContent = $('<div class="tab-content"></div>');
 
         orgs.data.forEach(function (orgObj) {
-           var pill = $('<li><a href="#' + orgObj.login + '-pills" data-toggle="tab" aria-expanded="true">' + orgObj.login + '</a></li>');
-           var desc = $('<div class="tab-pane fade active in" id="' + orgObj.login + '-pills"> <a href="' + orgObj.url +'">' + orgObj.login + '</a> <p>' + orgObj.description + '</p></div>')
-            var subButton = $('<button type="button" class="btn btn-primary subs" data-org="' + orgObj.login + '" data-hook="'+ orgObj.hooks_url + '">Subscribe</button>')
+            var pill = $('<li><a href="#' + orgObj.login + '-pills" data-toggle="tab" aria-expanded="true">' + orgObj.login + '</a></li>');
+            var desc = $('<div class="tab-pane fade active in" id="' + orgObj.login + '-pills"> <a href="' + orgObj.url + '">' + orgObj.login + '</a> <p>' + orgObj.description + '</p></div>')
+            var subButton = $('<button type="button" class="btn btn-primary subs" data-org="' + orgObj.login + '" data-hook="' + orgObj.hooks_url + '">Subscribe</button>');
 
             pill.appendTo(orgNav);
-           subButton.appendTo(desc);
-           desc.appendTo(orgContent);
+            subButton.appendTo(desc);
+            desc.appendTo(orgContent);
 
         });
 
@@ -287,11 +286,11 @@ CORE.create_module('dashboard', function (sb) {
         orgList.appendTo(panelDefault);
 
         console.log(orgList);
-       $('#page-here').append(panelDefault);
+        $('#page-here').append(panelDefault);
 
-       sb.notify({
-           type: 'org-buttons'
-       });
+        sb.notify({
+            type: 'org-buttons'
+        });
     };
 
     return {
@@ -435,6 +434,160 @@ CORE.create_module('logout', function (sb) {
 });
 },{"../core":1}],7:[function(require,module,exports){
 'use strict';
+
+var CORE = require('../core');
+
+CORE.create_module('serviceWorker', function (sb) {
+
+    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+
+    const pushButton = document.querySelector('.js-push-btn');
+
+    let isSubscribed = false;
+    let swRegistration = null;
+
+    function urlB64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    function updateBtn() {
+
+        if (Notification.permission === 'denied') {
+            pushButton.textContent = 'Push Messaging Blocked.';
+            pushButton.disabled = true;
+            updateSubscriptionOnServer(null);
+            return;
+        }
+
+        if (isSubscribed) {
+            pushButton.textContent = 'Disable Push Messaging';
+        } else {
+            pushButton.textContent = 'Enable Push Messaging';
+        }
+
+        pushButton.disabled = false;
+    }
+
+    function initialiseUI() {
+        pushButton.addEventListener('click', function() {
+            pushButton.disabled = true;
+            if (isSubscribed) {
+                // TODO: Unsubscribe user
+            } else {
+                subscribeUser();
+            }
+        });
+
+        // Set the initial subscription value
+        swRegistration.pushManager.getSubscription()
+            .then(function(subscription) {
+                isSubscribed = !(subscription === null);
+
+                updateSubscriptionOnServer(subscription);
+
+                if (isSubscribed) {
+                    console.log('User IS subscribed.');
+                } else {
+                    console.log('User is NOT subscribed.');
+                }
+
+                updateBtn();
+            });
+    }
+
+    function subscribeUser() {
+        const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
+        swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+        })
+            .then(function(subscription) {
+                console.log('User is subscribed');
+
+                updateSubscriptionOnServer(subscription);
+
+                isSubscribed = true;
+
+                updateBtn();
+            })
+            .catch(function(err) {
+                console.log('Failed to subscribe the user: ', err);
+                updateBtn();
+            });
+    }
+
+    function updateSubscriptionOnServer(subscription) {
+        // TODO: Send subscription to application server
+        debugger;
+
+        const subscriptionJson = document.querySelector('.js-subscription-json');
+        const subscriptionDetails =
+            document.querySelector('.js-subscription-details');
+
+        if (subscription) {
+
+            sb.notify({
+                type: 'push-subscription',
+                data: subscription
+            });
+
+            subscriptionJson.textContent = JSON.stringify(subscription);
+            subscriptionDetails.classList.remove('is-invisible');
+        } else {
+            subscriptionDetails.classList.add('is-invisible');
+        }
+    }
+
+
+    var startWorker = function () {
+
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            console.log('Service Worker and Push is supported');
+
+            navigator.serviceWorker.register('js/sw.js')
+                .then(function(swReg) {
+                    console.log('Service Worker is registered', swReg);
+
+                    swRegistration = swReg;
+                    initialiseUI();
+                })
+                .catch(function(error) {
+                    console.error('Service Worker Error', error);
+                });
+        } else {
+            console.warn('Push messaging is not supported');
+            pushButton.textContent = 'Push Not Supported';
+        }
+        
+    };
+    
+    
+    return {
+        init: function () {
+            startWorker();
+        },
+        
+        destroy: function () {
+            
+        }
+    }
+
+    
+
+});
+},{"../core":1}],8:[function(require,module,exports){
+'use strict';
 var CORE = require('../core');
 
 CORE.create_module('sockets', function (sb) {
@@ -467,10 +620,18 @@ CORE.create_module('sockets', function (sb) {
        });
    };
 
+   var pushSubscription = function (subscription) {
+       debugger;
+       socket.emit('push-subscription', subscription);
+   };
+
     return {
         init: function () {
             socket = sb.socket();
             socketController();
+            sb.listen({
+                'push-subscription': pushSubscription
+            })
         },
         
         destroy: function () {
@@ -480,7 +641,7 @@ CORE.create_module('sockets', function (sb) {
 
 
 });
-},{"../core":1}],8:[function(require,module,exports){
+},{"../core":1}],9:[function(require,module,exports){
 'use strict';
 
 var Sandbox = {

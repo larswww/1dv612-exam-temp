@@ -4,9 +4,7 @@ const passport = require('passport');
 const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn('/auth');
 
 let env = {
-    AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
-    AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
-    AUTH0_CALLBACK_URL: process.env.AUTH0_CALLBACK_URL || 'http://localhost:3000/auth/github'
+    VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY
 };
 
 router.get('/', ensureLoggedIn, function (req, res) {
@@ -31,5 +29,17 @@ router.get('/auth/github/callback',
     function (req, res) {
         res.redirect(req.session.returnTo || '/dashboard');
     });
+
+
+router.post('webhook/callback', function (req, res, next) {
+    console.log('webhook');
+
+    /*
+     if ( req.ip != '131.103.20.165' && req.ip != '131.103.20.166' ) {
+     res.json({ message : 'Untrusted origin' });
+     return;
+     }
+     */
+});
 
 module.exports = router;

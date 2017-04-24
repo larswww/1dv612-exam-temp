@@ -31,10 +31,18 @@ CORE.create_module('sockets', function (sb) {
        });
    };
 
+   var pushSubscription = function (subscription) {
+       debugger;
+       socket.emit('push-subscription', subscription);
+   };
+
     return {
         init: function () {
             socket = sb.socket();
             socketController();
+            sb.listen({
+                'push-subscription': pushSubscription
+            })
         },
         
         destroy: function () {
