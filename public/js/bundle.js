@@ -190,102 +190,15 @@ var CORE = (function () {
 
 module.exports = CORE;
 
-},{"./sandbox":9}],2:[function(require,module,exports){
+},{"./sandbox":8}],2:[function(require,module,exports){
 var core = require('./core');
 var Sandbox = require('./sandbox');
-var authModule = require('./modules/auth');
 var profileModule = require('./modules/profile');
 var socketModule = require('./modules/socketController');
 var dashboard = require('./modules/dashboard');
 var handleClick = require('./modules/handleClick');
 var createHook = require('./modules/createHook');
-},{"./core":1,"./modules/auth":3,"./modules/createHook":4,"./modules/dashboard":5,"./modules/handleClick":6,"./modules/profile":7,"./modules/socketController":8,"./sandbox":9}],3:[function(require,module,exports){
-'use strict';
-var CORE = require('../core');
-
-CORE.create_module('auth', function (sb) {
-    var button;
-    var userProfile;
-    var userToken;
-
-    var id_token = localStorage.getItem('id_token');
-    var lock = new Auth0Lock(
-        'FxN8RQSXo1kNnWXfvFgTYn8ZtEy4esPc',
-        'lw222ii.auth0.com',
-        {
-            auth: {
-                redirect: false
-            }
-        }
-    );
-
-    var getProfile = function (idToken) {
-        lock.getProfile(idToken, function (err, profile) {
-            if (err) {
-                console.log('Cannot get user', err);
-                return;
-            }
-            console.log('connected and authenticated');
-            userProfile = profile;
-            localStorage.setItem('id_token', idToken);
-            userToken = idToken;
-            activateSocket(userProfile, idToken)
-    })};
-
-    if (id_token) {
-        getProfile(id_token);
-    }
-
-
-    lock.on("authenticated", function (authResult) {
-        debugger;
-        getProfile(authResult.idToken);
-        lock.getProfile(authResult.idToken, function (error, profile) {
-            if (error) {
-                // Handle error
-                return;
-            }
-
-            localStorage.setItem('id_token', authResult.idToken);
-            localStorage.setItem('profile', JSON.stringify(profile));
-            activateSocket(profile, authResult);
-        });
-    });
-
-    var activateSocket = function (userProfile, idToken) {
-        sb.notify({
-            type: 'logged-in',
-            data: userProfile
-        });
-
-        sb.notify({
-            type: 'socket-authenticate',
-            data: userProfile
-        });
-
-    };
-
-    let handleClick = function (e) {
-        e.preventDefault();
-        lock.show();
-    };
-
-
-    return {
-        init: function () {
-            // lock = sb.lock();
-            button = sb.find('button')[0];
-            sb.addEvent(button, 'click', handleClick);
-        },
-
-        destroy: function () {
-
-        }
-    };
-
-});
-
-},{"../core":1}],4:[function(require,module,exports){
+},{"./core":1,"./modules/createHook":3,"./modules/dashboard":4,"./modules/handleClick":5,"./modules/profile":6,"./modules/socketController":7,"./sandbox":8}],3:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -311,7 +224,7 @@ CORE.create_module('hooks', function (sb) {
     }
 
 });
-},{"../core":1}],5:[function(require,module,exports){
+},{"../core":1}],4:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
@@ -406,7 +319,7 @@ CORE.create_module('dashboard', function (sb) {
 
     }
 });
-},{"../core":1}],6:[function(require,module,exports){
+},{"../core":1}],5:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -456,7 +369,7 @@ CORE.create_module('clickHandler', function (sb) {
         }
     }
 });
-},{"../core":1}],7:[function(require,module,exports){
+},{"../core":1}],6:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
@@ -520,7 +433,7 @@ CORE.create_module('logout', function (sb) {
     }
 
 });
-},{"../core":1}],8:[function(require,module,exports){
+},{"../core":1}],7:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -531,16 +444,11 @@ CORE.create_module('sockets', function (sb) {
 
        socket.on('connect', function () {
            console.log('socket connected');
-           socket.emit('start');
+           socket.emit('base-req', {});
 
-       });
-
-       socket.on('octonode', function (data) {
-           console.log(data);
        });
 
        socket.on('github-events', function (data) {
-           console.log('gh event socket controller');
            sb.notify({
                type: 'github-events',
                data: data
@@ -548,8 +456,6 @@ CORE.create_module('sockets', function (sb) {
        });
 
        socket.on('github-organisations', function (data) {
-           console.log('git orgs');
-           debugger;
            sb.notify({
                type: 'github-organisations',
                data: data
@@ -560,19 +466,11 @@ CORE.create_module('sockets', function (sb) {
            console.log('org-repos', data);
        });
    };
-    
-    var onAuthenticate = function (profile) {
-        socket.emit('authenticated', profile)
-    };
-    
+
     return {
         init: function () {
             socket = sb.socket();
             socketController();
-            sb.listen({
-                'socket-authenticate': onAuthenticate
-            })
-            
         },
         
         destroy: function () {
@@ -582,7 +480,7 @@ CORE.create_module('sockets', function (sb) {
 
 
 });
-},{"../core":1}],9:[function(require,module,exports){
+},{"../core":1}],8:[function(require,module,exports){
 'use strict';
 
 var Sandbox = {

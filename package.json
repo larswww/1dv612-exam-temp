@@ -27,6 +27,7 @@
     "lodash": "^4.17.4",
     "octonode": "^0.7.10",
     "passport-auth0": "^0.6.0",
+    "passport-github2": "^0.1.10",
     "request": "^2.81.0",
     "socket.io": "^1.7.3",
     "socket.io-client": "^1.7.3",

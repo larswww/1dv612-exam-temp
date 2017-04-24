@@ -1,32 +1,11 @@
 'use strict';
 const octonode = require('octonode');
 const auth0IdpToken = require('./auth0IdpToken');
-const github = new GithubClient();
+let github = {};
 
+function githubSocketsController(socket) {
 
-// let gitApi = require('octonode-api');
-// let jwt = require('jsonwebtoken');
-// let octonode = require('octonode');
-
-function testGithub(io) {
-
-    // let ghme = github.client.me();
-    // let ghuser = client.user('larswww');
-    // let ghrepo = client.repo('larswww/2dv513a3');
-    // let ghorg = client.org('1dv527');
-
-
-    io.on('connection', function (socket) {
-
-        socket.on('authenticated', profile => {
-
-            github.profile = profile;
-            github.createClient(profile.user_id).then(client => {
-                basicGithubRequests(client, socket);
-                github.client = client;
-            })
-
-        });
+        github.socket = socket;
 
         socket.on('create-hook', org => {
 
@@ -42,7 +21,7 @@ function testGithub(io) {
                 "active": true,
                 "events": ["push", "pull_request"],
                 "config": {
-                    "url": "http://requestb.in/1ddydc81",
+                    "url": "http://requestb.in/1416ca61",
                     "content_type": "json",
                     "insecure_ssl": 1
                 }
@@ -54,45 +33,9 @@ function testGithub(io) {
             })
         });
 
-        let basicGithubRequests = function (client) {
-
-            let me = client.me();
-
-            client.get('/user', {}, function (err, status, body, headers) {
-                console.log(err, status, body, headers);
-                if (body) socket.emit('github-profile', body);
-            });
-
-            me.info(function (err, user) {
-                console.log(user);
-            });
-
-            me.orgs(function (err, orgs) {
-
-                socket.emit('github-organisations', { data: orgs });
-
-                sendReposForEachOrganisation(client, socket, orgs);
-                console.log(orgs);
-
-            });
-
-            me.repos(function (err, repos) {
-
-                console.log(repos);
-
-                repos.forEach(repo => {
-                    console.log(repo.owner.login);
-                })
-            });
-
-            me.issues({}, function (err, issues) {
-                console.log(issues)
-            });
-
-            me.teams({}, function (err, teams) {
-                console.log(teams);
-            });
-        };
+        socket.on('base-req', data => {
+            basicGithubRequests();
+        });
 
 
         //
@@ -147,7 +90,6 @@ function testGithub(io) {
         //
         // ghme.starred(consoleLogCb);
 
-
         // ghrepo.commits(consoleLogCb)
 
         //ghrepo.hooks(consoleLogCb);
@@ -176,13 +118,49 @@ function testGithub(io) {
         //         "url": "http://requestb.in/1n84v2b1"
         //     }
         // }, consoleLogCb); // hook
-    });
 };
 
 //TODO validation/getters/setters
-function GithubClient() {
 
-}
+let basicGithubRequests = function () {
+
+    let me = github.client.me();
+
+    github.client.get('/user', {}, function (err, status, body, headers) {
+        console.log(err, status, body, headers);
+        if (body) github.socket.emit('github-profile', body);
+    });
+
+    me.info(function (err, user) {
+        console.log(user);
+    });
+
+    me.orgs(function (err, orgs) {
+
+       github.socket.emit('github-organisations', {data: orgs});
+
+        sendReposForEachOrganisation(github.client, github.socket, orgs);
+        console.log(orgs);
+
+    });
+
+    me.repos(function (err, repos) {
+
+        console.log(repos);
+
+        repos.forEach(repo => {
+            console.log(repo.owner.login);
+        })
+    });
+
+    me.issues({}, function (err, issues) {
+        console.log(issues)
+    });
+
+    me.teams({}, function (err, teams) {
+        console.log(teams);
+    });
+};
 
 
 let sendReposForEachOrganisation = function (client, socket, orgs) {
@@ -190,7 +168,7 @@ let sendReposForEachOrganisation = function (client, socket, orgs) {
     let sendRepos = function (err, repos) {
         if (err) console.error(err);
 
-        if (repos) socket.emit('org-repos', { data: repos })
+        if (repos) socket.emit('org-repos', {data: repos})
     };
 
     orgs.forEach(org => {
@@ -198,23 +176,19 @@ let sendReposForEachOrganisation = function (client, socket, orgs) {
         ghorg.repos(sendRepos);
     });
 
-
-
 };
 
-GithubClient.prototype.createClient = function (user_id) {
+function createClient(accessToken) {
+    //todo getters setters validation etc
+    github.client = octonode.client(accessToken);
+}
 
-    return new Promise(function (resolve, reject) {
+function activateSockets(socket) {
+    github.socket = socket;
+    githubSocketsController(github.socket);
+}
 
-        auth0IdpToken(user_id).then(function (token) {
-            let client = octonode.client(token);
-            //todo check health of client and reject()?
-            resolve(client);
-        });
-
-    });
-
-
+module.exports = {
+    createClient: createClient,
+    activateSockets: activateSockets
 };
-
-module.exports = testGithub;

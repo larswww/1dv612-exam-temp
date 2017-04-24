@@ -6,7 +6,7 @@ CORE.create_module('auth', function (sb) {
     var userProfile;
     var userToken;
 
-    var id_token = localStorage.getItem('id_token');
+    // var id_token = localStorage.getItem('id_token');
     var lock = new Auth0Lock(
         'FxN8RQSXo1kNnWXfvFgTYn8ZtEy4esPc',
         'lw222ii.auth0.com',
@@ -30,9 +30,9 @@ CORE.create_module('auth', function (sb) {
             activateSocket(userProfile, idToken)
     })};
 
-    if (id_token) {
-        getProfile(id_token);
-    }
+    // if (id_token) {
+    //     getProfile(id_token);
+    // }
 
 
     lock.on("authenticated", function (authResult) {
