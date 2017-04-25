@@ -19,11 +19,6 @@ router.get('/auth/github',
     passport.authenticate('github', {scope: ['user', 'notifications', 'admin:repo_hook', 'admin:org_hook']})
 );
 
-router.get('/logout', function (req, res) {
-    req.logout();
-    res.redirect('/');
-});
-
 router.get('/auth/github/callback',
     passport.authenticate('github', {failureRedirect: '/auth'}),
     function (req, res) {
@@ -31,8 +26,16 @@ router.get('/auth/github/callback',
     });
 
 
-router.post('webhook/callback', function (req, res, next) {
+router.get('/logout', function (req, res) {
+    req.logout();
+    res.redirect('/');
+});
+
+router.post('/webhook/callback', function (req, res, next) {
     console.log('webhook');
+    console.log(req.body);
+    res.status(200);
+    res.send();
 
     /*
      if ( req.ip != '131.103.20.165' && req.ip != '131.103.20.166' ) {

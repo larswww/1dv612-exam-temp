@@ -42,7 +42,7 @@ function githubSocketsController(socket) {
             //todo save the subscription in db.
            webpush.subscribe(data);
         });
-};
+}
 
 //TODO validation/getters/setters
 
@@ -94,7 +94,6 @@ let sendReposForEachOrganisation = function (client, socket, orgs) {
         let ghorg = client.org(org.login);
         ghorg.repos(sendRepos);
     });
-
 };
 
 function createClient(accessToken) {
