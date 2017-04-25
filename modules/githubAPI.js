@@ -40,6 +40,7 @@ function githubSocketsController(socket) {
         });
 
         socket.on('push-subscription', data => {
+            //todo save the subscription in db.
            webpush.subscribe(data);
         });
 };
