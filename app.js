@@ -55,7 +55,7 @@ function startServer() {
 
 app.set('port', process.env.PORT);
 
-app.use(express.static(__dirname + '/public'));
+app.use('/public', express.static(__dirname + '/public'));
 app.use('/bower_components', express.static(__dirname + '/bower_components'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
