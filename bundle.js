@@ -106,7 +106,7 @@ module.exports = (function () {
 },{"./sandbox":4}],2:[function(require,module,exports){
 var core = require('./core');
 var sandbox = require('./sandbox');
-var testModule = require('./modules/testModule');
+var testModule = require('./model/testModule');
 
 
 },{"./core":1,"./modules/testModule":3,"./sandbox":4}],3:[function(require,module,exports){

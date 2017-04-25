@@ -11,7 +11,8 @@ let bodyParser = require('body-parser');
 let handlebars = require('express-handlebars').create({
     defaultLayout: 'main',
 });
-let user = require('./modules/user');
+let handleAuth = require('./controller/auth');
+let db = require('./model/db');
 
 let socketController = require('./controller/socket');
 
@@ -23,7 +24,7 @@ let strategy = new GithubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
     callbackUrl: process.env.GITHUB_CALLBACK_URL
-}, user);
+}, handleAuth);
 
 
 passport.use(strategy);
@@ -43,6 +44,8 @@ function startServer() {
     server = http.createServer(app).listen(process.env.PORT, function () {
         console.log('Express started in on http://localhost:' + process.env.PORT + '; press Ctrl-C to terminate.');
     });
+
+    db.connect(process.env.MLAB_CONNECTION_STRING);
 
     let io = require('socket.io')(server);
 

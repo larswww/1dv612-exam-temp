@@ -1,15 +1,53 @@
 'use strict';
+const mongoose = require('mongoose');
+const schema = require('./schemas');
+let db;
 
-let githubAPI = require('./githubAPI');
+function connect(credential) {
 
-module.exports = function (accessToken, refreshToken, profile, done) {
-    profile.accessToken = accessToken;
-    profile.refreshToken = refreshToken;
+    let options = {
+        server: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}},
+        replset: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}}
+    };
 
-    githubAPI.createClient(accessToken);
+    mongoose.connect(credential, options);
 
-    return done(null, profile);
-};
+    db = mongoose.connection;
+
+    db.on('error', console.error.bind(console, 'connection error:'));
+
+    db.once('open', function () {
+        console.log('Connected to MongoLab DB');
+    });
+
+}
+
+function handleLogin(profile) {
+
+    schema.user.findOne({ id: profile.id, username: profile.username}, function (err, matchingUser) {
+
+        if (err) {
+            console.error(err);
+        }
+
+        if (matchingUser === null) {
+            let newUser = new schema.user({
+                id: profile.id,
+                username: profile.username,
+                accessToken: profile.accessToken,
+                _raw: profile._raw,
+            });
+
+            newUser.save()
+        }
+
+        if (matchingUser) {
+            console.log('user exists in db')
+        }
+
+    });
+
+}
 
 /**
 
@@ -132,3 +170,8 @@ module.exports = function (accessToken, refreshToken, profile, done) {
   'x-github-request-id': 'EBCC:27522:2A99131:36D6468:58FC84DD' }
 
  **/
+
+
+
+exports.connect = connect;
+exports.handleLogin = handleLogin;

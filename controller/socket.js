@@ -1,6 +1,6 @@
 'use strict';
-let githubAPI = require('../modules/githubAPI');
-const webPush = require('../modules/webPush');
+let githubAPI = require('../model/githubAPI');
+const webPush = require('../model/webPush');
 let connectedSocket;
 
 function socketController(socket) {
