@@ -1,6 +1,5 @@
 'use strict';
 const octonode = require('octonode');
-const auth0IdpToken = require('./auth0IdpToken');
 const webpush = require('./webPush');
 
 let github = {};
