@@ -120,7 +120,7 @@ CORE.create_module('serviceWorker', function (sb) {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             console.log('Service Worker and Push is supported');
 
-            navigator.serviceWorker.register('js/sw.js')
+            navigator.serviceWorker.register('/public/js/sw.js')
                 .then(function(swReg) {
                     console.log('Service Worker is registered', swReg);
 
