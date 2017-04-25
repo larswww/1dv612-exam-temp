@@ -6,7 +6,7 @@ var Sandbox = require('./sandbox');
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    var coreSocket = io('http://localhost:3001');
+    var coreSocket = io();
 
     return {
         debug: function (on) {
@@ -113,11 +113,6 @@ var CORE = (function () {
         dom: {
             socket: function () {
                 return coreSocket;
-            },
-
-            lock: function () {
-                return new Auth0Lock('FxN8RQSXo1kNnWXfvFgTYn8ZtEy4esPc', 'lw222ii.auth0.com');
-
             },
 
             chart: function (type, settings) {
@@ -555,7 +550,7 @@ CORE.create_module('serviceWorker', function (sb) {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             console.log('Service Worker and Push is supported');
 
-            navigator.serviceWorker.register('js/sw.js')
+            navigator.serviceWorker.register('/public/js/sw.js')
                 .then(function(swReg) {
                     console.log('Service Worker is registered', swReg);
 
