@@ -13,7 +13,7 @@ let handlebars = require('express-handlebars').create({
 });
 let user = require('./modules/user');
 
-let githubAPI = require('./modules/githubAPI');
+let socketController = require('./controller/socket');
 
 let server;
 
@@ -47,7 +47,7 @@ function startServer() {
     let io = require('socket.io')(server);
 
     io.on('connection', socket => {
-        githubAPI.activateSockets(socket);
+        socketController.activate(socket);
     });
 
 }
@@ -61,7 +61,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
-    secret: 'shhhhhhhhh',
+    secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true
 }));
@@ -78,7 +78,7 @@ app.use(function (req, res, next) {
 
 //-- Routes --//
 
-app.use('/', require('./routes/main.js'));
+app.use('/', require('./controller/routes.js'));
 
 app.get('/unauthorized', function (req, res) {
 
