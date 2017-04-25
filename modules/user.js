@@ -1,3 +1,5 @@
+'use strict';
+
 let githubAPI = require('./githubAPI');
 
 module.exports = function (accessToken, refreshToken, profile, done) {
