@@ -46,7 +46,28 @@ function handleLogin(profile) {
         }
 
     });
+}
 
+function saveSubscription(subscription, profile) {
+
+    let json = JSON.stringify(subscription);
+
+    schema.user.findOneAndUpdate({ id: profile.id, username: profile.username }, {subscription: json}, function (err, matchingUser) {
+
+        if (err) {
+            console.error(err);
+        }
+
+        if (matchingUser === null) {
+            console.error('Couldnt find user to save subscription to');
+        }
+
+        if (matchingUser) {
+            matchingUser.subscription = subscription;
+            matchingUser.save();
+        }
+
+    })
 }
 
 /**
@@ -175,3 +196,4 @@ function handleLogin(profile) {
 
 exports.connect = connect;
 exports.handleLogin = handleLogin;
+exports.saveSubscription = saveSubscription;

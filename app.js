@@ -3,8 +3,14 @@
 let express = require('express');
 let http = require('http');
 let dotenv = require('dotenv');
+
 let cookieParser = require('cookie-parser');
 let session = require('express-session');
+let RedisStore = require('connect-redis')(session);
+let redis = require('redis');
+let redisClient = redis.createClient();
+let sessionStore = new RedisStore({ client: redisClient });
+
 let passport = require('passport');
 let GithubStrategy = require('passport-github2');
 let bodyParser = require('body-parser');
@@ -48,6 +54,14 @@ function startServer() {
     db.connect(process.env.MLAB_CONNECTION_STRING);
 
     let io = require('socket.io')(server);
+    let passportSocketIo = require('passport.socketio');
+
+    io.use(passportSocketIo.authorize({
+        cookieParser: cookieParser,
+        key: 'connect.sid',
+        secret: process.env.SESSION_SECRET,
+        store: sessionStore,
+    }));
 
     io.on('connection', socket => {
         socketController.activate(socket);
@@ -64,9 +78,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
+    store: sessionStore,
     secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24,
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());

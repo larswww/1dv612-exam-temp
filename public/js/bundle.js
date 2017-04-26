@@ -188,12 +188,12 @@ module.exports = CORE;
 },{"./sandbox":9}],2:[function(require,module,exports){
 var core = require('./core');
 var Sandbox = require('./sandbox');
-var profileModule = require('./model/profile');
-var socketModule = require('./model/socketController');
-var dashboard = require('./model/dashboard');
-var handleClick = require('./model/handleClick');
-var createHook = require('./model/createHook');
-var serviceWorker = require('./model/serviceWorker');
+var profileModule = require('./modules/profile');
+var socketModule = require('./modules/socketController');
+var dashboard = require('./modules/dashboard');
+var handleClick = require('./modules/handleClick');
+var createHook = require('./modules/createHook');
+var serviceWorker = require('./modules/serviceWorker');
 },{"./core":1,"./modules/createHook":3,"./modules/dashboard":4,"./modules/handleClick":5,"./modules/profile":6,"./modules/serviceWorker":7,"./modules/socketController":8,"./sandbox":9}],3:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');

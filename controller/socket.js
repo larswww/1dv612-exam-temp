@@ -1,6 +1,7 @@
 'use strict';
-let githubAPI = require('../model/githubAPI');
+const githubAPI = require('../model/githubAPI');
 const webPush = require('../model/webPush');
+const db = require('../model/db');
 let connectedSocket;
 
 function socketController(socket) {
@@ -8,15 +9,22 @@ function socketController(socket) {
     connectedSocket = socket;
 
     socket.on('create-hook', org => {
+
+        // if (socket.request.user && socket.request.user.logged_in) {
+        //     console.log(socket.request.user);
+        // }
+
         githubAPI.createHook(org);
     });
 
     socket.on('base-req', data => {
+
         githubAPI.basicRequests();
     });
 
     socket.on('push-subscription', data => {
-        //todo save the subscription in db.
+
+        db.saveSubscription(data, socket.request.user);
         webPush.subscribe(data);
     });
 
