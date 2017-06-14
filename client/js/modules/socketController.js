@@ -29,6 +29,10 @@ CORE.create_module('sockets', function (sb) {
        socket.on('org-repos', function (data) {
            console.log('org-repos', data);
        });
+
+       socket.on('hook-created', function (data) {
+          console.log('hook-created', data)
+       });
    };
 
    var pushSubscription = function (subscription) {

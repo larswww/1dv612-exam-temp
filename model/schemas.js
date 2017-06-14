@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+let Schema = mongoose.Schema;
 
 let userSchema = new mongoose.Schema({
 
@@ -26,14 +27,45 @@ let userSchema = new mongoose.Schema({
 
     subscription: {
         type: String
-    }
+    },
+
+    organizations: {
+        type: Array
+    },
+
+    notifications: [{ type: Schema.Types.ObjectId, ref: 'notification' }]
 
 });
 
 let user = mongoose.model('user', userSchema);
 
+let notificationSchema = new mongoose.Schema({
+
+    event: {
+        type: String,
+        required: true,
+    },
+
+    sender: {
+        type: String,
+    },
+
+    organization: {
+        type: String,
+    },
+
+    repository: {
+        type: String,
+    },
+
+    date: { type: Date, default: Date.now }
+
+});
+
+let notification = mongoose.model('notification', notificationSchema);
 
 exports.user = user;
+exports.notification = notification;
 
 /**
  * subscription:

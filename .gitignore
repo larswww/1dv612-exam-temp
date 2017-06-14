@@ -7,3 +7,4 @@ config/environment/production
 01-login
 .env
 push-notifications-master
+model/githubTest.js

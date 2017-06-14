@@ -1,5 +1,7 @@
+'use strict';
 const webpush = require('web-push');
 const dotenv = require('dotenv');
+const notificationHelper = require('../model/helpers/notification');
 
 dotenv.load();
 
@@ -21,6 +23,21 @@ let subscribeTo = function (subscription) {
 
 };
 
+function toSubscribers(subscribers, notification) {
+
+    let payloadText = notificationHelper.getText(notification.event);
+    let options = {
+        headers: {
+            "name":"value"
+        }
+    };
+
+    subscribers.forEach(subscriber => {
+        let subs = JSON.parse(subscriber.subscription);
+        webpush.sendNotification(subs, payloadText, options)
+    })
+}
+
 //
 //
 // // This is the same output of calling JSON.stringify on a PushSubscription
@@ -34,6 +51,5 @@ let subscribeTo = function (subscription) {
 //
 // webpush.sendNotification(pushSubscription, 'Your Push Payload Text');
 
-module.exports = {
-    subscribe: subscribeTo
-};
+exports.subscribe = subscribeTo;
+exports.toSubscribers = toSubscribers;

@@ -22,9 +22,7 @@ function basicGithubRequests() {
 
         socketController.emit('github-organisations', {data: orgs});
 
-       //github.socket.emit('github-organisations', {data: orgs});
-
-       // sendReposForEachOrganisation(github.client, github.socket, orgs);
+        // sendReposForEachOrganisation(github.client, github.socket, orgs);
 
     });
 
@@ -49,7 +47,7 @@ let sendReposForEachOrganisation = function (client, socket, orgs) {
         if (err) console.error(err);
 
         if (repos) socketController.emit('org-repos', {data: repos});
-            //socket.emit('org-repos', {data: repos})
+        //socket.emit('org-repos', {data: repos})
     };
 
     orgs.forEach(org => {
@@ -74,7 +72,16 @@ function createHook(org) {
             "content_type": "json",
             "insecure_ssl": 1
         }
-    }, function (err, s, b, h) {
+    }, function (err, hook, body, header) {
+        if (err) console.error(err);
+
+        if (body && body.status !== '201 Created') {
+            console.error(body);
+        }
+
+        if (hook) {
+            socketController.emit('hook-created', {org: org.url.org, events: hook.events})
+        }
     });
 
     ghorg.hooks(function (s, d) {

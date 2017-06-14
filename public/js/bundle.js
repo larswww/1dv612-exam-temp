@@ -255,6 +255,24 @@ CORE.create_module('dashboard', function (sb) {
 
     };
 
+    var subscribeHook = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var hookUrl = event.currentTarget.getAttribute('data-hook');
+        var org = event.currentTarget.getAttribute('data-org');
+
+        sb.notify({
+            type: 'create-hook',
+            data: {
+                url: hookUrl,
+                org: org
+            }
+        });
+
+        sb.removeEvent(event.currentTarget, 'click', subscribeHook);
+    };
+
     var createOrganisations = function (orgs) {
 
         var panelDefault = $('<div class="panel panel-default">');
@@ -266,8 +284,10 @@ CORE.create_module('dashboard', function (sb) {
 
         orgs.data.forEach(function (orgObj) {
             var pill = $('<li><a href="#' + orgObj.login + '-pills" data-toggle="tab" aria-expanded="true">' + orgObj.login + '</a></li>');
-            var desc = $('<div class="tab-pane fade active in" id="' + orgObj.login + '-pills"> <a href="' + orgObj.url + '">' + orgObj.login + '</a> <p>' + orgObj.description + '</p></div>')
+            var desc = $('<div class="tab-pane fade in" id="' + orgObj.login + '-pills"> <a href="' + orgObj.url + '">' + orgObj.login + '</a> <p>' + orgObj.description + '</p></div>');
             var subButton = $('<button type="button" class="btn btn-primary subs" data-org="' + orgObj.login + '" data-hook="' + orgObj.hooks_url + '">Subscribe</button>');
+
+            sb.addEvent(subButton, 'click', subscribeHook);
 
             pill.appendTo(orgNav);
             subButton.appendTo(desc);
@@ -283,9 +303,6 @@ CORE.create_module('dashboard', function (sb) {
         console.log(orgList);
         $('#page-here').append(panelDefault);
 
-        sb.notify({
-            type: 'org-buttons'
-        });
     };
 
     return {
@@ -309,8 +326,6 @@ CORE.create_module('dashboard', function (sb) {
         createOrganisations: function (data) {
             createOrganisations(data);
         }
-
-
     }
 });
 },{"../core":1}],5:[function(require,module,exports){
