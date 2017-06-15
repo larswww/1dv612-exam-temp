@@ -16,7 +16,9 @@ router.get('/login', function (req, res) {
 });
 
 router.get('/', ensureLoggedIn, function (req, res) {
-    res.render('dashboard', {title: 'Express', env: env, user: req.user});
+    githubAPI.basicRequests().then(git => {
+        res.render('dashboard', {title: 'Express', env: env, user: req.user, git: git});
+    });
 });
 
 router.get('/auth/github',
@@ -24,11 +26,11 @@ router.get('/auth/github',
 );
 
 router.get('/auth/github/callback',
-    passport.authenticate('github', {failureRedirect: '/auth', successRedirect: '/auth/success'})
+    passport.authenticate('github', {failureRedirect: '/login', successRedirect: '/auth/success'})
 );
 
 router.get('/auth/success',
-    ensureLoggedIn,
+    //ensureLoggedIn,
     function (req, res) {
        // githubAPI.createClient(req.user.accessToken);
         db.handleLogin(req.user);

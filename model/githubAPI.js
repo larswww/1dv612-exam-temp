@@ -2,42 +2,59 @@
 const octonode = require('octonode');
 const socketController = require('../controller/socket');
 
-let github = {};
+let client;
+let me;
 let dotenv = require('dotenv');
 
 dotenv.load();
 
 //TODO validation/getters/setters
 
-function basicGithubRequests() {
+function basicRequests() {
 
-    if (!github.client) return;
+    return new Promise((resolve, reject) => {
 
-    let me = github.client.me();
+        if (!me) me = octonode.client.me(); //in case of async issues
 
-    me.info(function (err, user) {
-    });
+        let promises = [promiseAPICall('repos'), promiseAPICall('issues'), promiseAPICall('teams'), promiseAPICall('orgs')];
 
-    me.orgs(function (err, orgs) {
+        Promise.all(promises).then(results => {
+            let returnObj = {
 
-        socketController.emit('github-organisations', {data: orgs});
+            };
 
-        // sendReposForEachOrganisation(github.client, github.socket, orgs);
+            results.forEach(result => {
 
-    });
-
-    me.repos(function (err, repos) {
+                for (var property in result) {
 
 
-        repos.forEach(repo => {
+                    returnObj[property] = result[property];
+                }
+            });
+            resolve(returnObj);
+        }).catch(error => {
+            console.error(error);
+        });
+    })
+}
+
+// simple promise wrapper of API calls since octonode does not support
+function promiseAPICall(apiToCall) {
+    return new Promise((resolve) => {
+        me[apiToCall]((err, result) => {
+            if (err) {
+                let returnObj = {};
+                returnObj[apiToCall] = err;
+                resolve(returnObj);
+            }
+
+            if (result) {
+                let returnObj = {};
+                returnObj[apiToCall] = result;
+                resolve(returnObj);
+            }
         })
-    });
-
-    me.issues({}, function (err, issues) {
-    });
-
-    me.teams({}, function (err, teams) {
-    });
+    })
 }
 
 
@@ -58,7 +75,7 @@ let sendReposForEachOrganisation = function (client, socket, orgs) {
 
 function createHook(org) {
 
-    let ghorg = github.client.org(org.url.org);
+    let ghorg = octonode.client.org(org.url.org);
 
     ghorg.repos(function (err, repos) {
     });
@@ -89,11 +106,13 @@ function createHook(org) {
 
 }
 
+
 function createClient(accessToken) {
     //todo getters setters validation etc
-    github.client = octonode.client(accessToken);
+    client = octonode.client(accessToken);
+    me = client.me();
 }
 
 exports.createClient = createClient;
 exports.createHook = createHook;
-exports.basicRequests = basicGithubRequests;
+exports.basicRequests = basicRequests;

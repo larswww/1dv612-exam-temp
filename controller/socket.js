@@ -17,10 +17,10 @@ function socketController(socket) {
 
     });
 
-    socket.on('base-req', () => {
-        githubAPI.basicRequests();
-        db.userNotifications();
-    });
+    // socket.on('base-req', () => {
+    //     githubAPI.basicRequests();
+    //     db.userNotifications();
+    // });
 
     socket.on('push-subscription', data => {
         db.saveSubscription(data, socket.request.user);
