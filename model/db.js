@@ -6,46 +6,59 @@ let db;
 
 function connect(credential) {
 
-    let options = {
-        server: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}},
-        replset: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}}
-    };
+    return new Promise((resolve, reject) => {
 
-    mongoose.connect(credential, options);
+        let options = {
+            server: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}},
+            replset: {socketOptions: {keepAlive: 300000, connectTimeoutMS: 30000}}
+        };
 
-    db = mongoose.connection;
+        mongoose.connect(credential, options);
 
-    db.on('error', console.error.bind(console, 'connection error:'));
+        db = mongoose.connection;
 
-    db.once('open', function () {
-        console.log('Connected to MongoLab DB');
+        db.on('error', console.error.bind(console, 'connection error:'));
+
+        db.once('open', function () {
+            resolve();
+            console.log('Connected to MongoLab DB');
+        });
+
+
     });
-
 }
 
 function handleLogin(profile) {
 
-    schema.user.findOne({id: profile.id, username: profile.username}, function (err, matchingUser) {
+    return new Promise((resolve, reject) => {
 
-        if (err) {
-            console.error(err);
-        }
+        schema.user.findOne({id: profile.id, username: profile.username}, function (err, matchingUser) {
 
-        if (matchingUser === null) {
-            let newUser = new schema.user({
-                id: profile.id,
-                username: profile.username,
-                accessToken: profile.accessToken,
-                _raw: profile._raw,
-            });
+            if (err) {
+                reject(err);
+                console.error(err);
+            }
 
-            newUser.save()
-        }
+            if (matchingUser === null) {
+                let newUser = new schema.user({
+                    id: profile.id,
+                    username: profile.username,
+                    accessToken: profile.accessToken,
+                    _raw: profile._raw,
+                });
 
-        if (matchingUser) {
-            console.log('user exists in db')
-        }
+                newUser.save();
+                resolve(false); // returning/resolving false bad practice but..?
+            }
 
+            if (matchingUser) {
+                getSavedPreferencesFor(matchingUser).then(prefs => {
+                    resolve(prefs);
+                }).catch(e => {
+                    reject(e);
+                });
+            }
+        });
     });
 }
 
@@ -142,7 +155,7 @@ function saveNotification(subscribers, notification) {
 
         newNotice.save().then(doc => {
             subscribers.forEach(sub => {
-                sub.doc.update({ $push: { notifications: doc._id }})
+                sub.doc.update({$push: {notifications: doc._id}})
             })
         }).catch(e => {
             console.error(e);
@@ -150,13 +163,82 @@ function saveNotification(subscribers, notification) {
     }
 }
 
-function userNotifications(user) {
+function subscribeTo(hook, user) {
+
+    schema.user.findOne({id: user.id}).then(userDoc => { //todo feels like an unnecessary db call?
+
+        schema.subscription.update({user: userDoc._id},
+            {
+                $addToSet: {
+                    hooks: hook
+                }
+            }
+        ).catch(e => {
+            console.error(e)
+        });
+
+    });
 
 }
 
-function subscribeTo(org, user) {
+function unsubscribeTo(org, user) {
 
+    schema.user.findOne({id: user.id }).then(userDoc => {
+
+        schema.subscription.update({user: userDoc._id, hooks: {$elemMatch: {login: org }}},
+            {
+                $pull: {
+                    hooks: { login: org }
+                }
+            }
+        )
+    }).then((error, writeResult) => {
+       if (error) console.error(error);
+       console.log(writeResult);
+    });
 }
+
+
+function getSavedPreferencesFor(user) {
+    let notificationPromises = [];
+
+    return new Promise((resolve, reject) => {
+
+           schema.subscription.findOne({user: user._id}).then(subDoc => {
+
+               if (subDoc) {
+                   subDoc.hooks.forEach(hook => {
+                       notificationPromises.push(schema.notification.find({org: hook.org })); // todo check the event types array
+                   });
+
+                   Promise.all(notificationPromises, values => {
+                       resolve(subDoc, values);
+                   }).catch(e => {
+                       reject(e);
+                   })
+               } else {
+                   let newSub = new schema.subscription({user: user._id});
+                   newSub.save();
+                   resolve(false);
+               }
+           });
+    })
+}
+
+function getUser(userID) {
+
+    return new Promise(function (resolve, reject) {
+
+        schema.user.findOne({id: userID}).then(user => {
+            if (user) {
+                resolve(user)
+            } else {
+                reject(false);
+            }
+        })
+    })
+}
+
 
 
 exports.connect = connect;
@@ -165,5 +247,6 @@ exports.saveSubscription = saveSubscription;
 exports.saveOrganizations = saveOrganizations;
 exports.findSubscribers = findSubscribers;
 exports.saveNotification = saveNotification;
-exports.userNotifications = userNotifications;
 exports.subscribe = subscribeTo;
+exports.unsubscribe = unsubscribeTo;
+exports.getUser = getUser;

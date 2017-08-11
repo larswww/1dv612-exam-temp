@@ -1,0 +1,50 @@
+'use strict';
+
+module.exports =
+{ zen: 'Favor focus over features.',
+    hook_id: 15193435,
+    hook:
+    { type: 'Organization',
+        id: 15193435,
+        name: 'web',
+        active: true,
+        events: [ '*' ],
+        config:
+        { content_type: 'json',
+            insecure_ssl: '1',
+            url: 'http://97ccf128.ngrok.io/webhook/payload/14055501' },
+        updated_at: '2017-07-27T10:53:19Z',
+            created_at: '2017-07-27T10:53:19Z',
+        url: 'https://api.github.com/orgs/extralars/hooks/15193435',
+        ping_url: 'https://api.github.com/orgs/extralars/hooks/15193435/pings' },
+    organization:
+    { login: 'extralars',
+        id: 27940098,
+        url: 'https://api.github.com/orgs/extralars',
+        repos_url: 'https://api.github.com/orgs/extralars/repos',
+        events_url: 'https://api.github.com/orgs/extralars/events',
+        hooks_url: 'https://api.github.com/orgs/extralars/hooks',
+        issues_url: 'https://api.github.com/orgs/extralars/issues',
+        members_url: 'https://api.github.com/orgs/extralars/members{/member}',
+        public_members_url: 'https://api.github.com/orgs/extralars/public_members{/member}',
+        avatar_url: 'https://avatars3.githubusercontent.com/u/27940098?v=4',
+        description: null },
+    sender:
+    { login: 'larswww',
+        id: 14055501,
+        avatar_url: 'https://avatars1.githubusercontent.com/u/14055501?v=4',
+        gravatar_id: '',
+        url: 'https://api.github.com/users/larswww',
+        html_url: 'https://github.com/larswww',
+        followers_url: 'https://api.github.com/users/larswww/followers',
+        following_url: 'https://api.github.com/users/larswww/following{/other_user}',
+        gists_url: 'https://api.github.com/users/larswww/gists{/gist_id}',
+        starred_url: 'https://api.github.com/users/larswww/starred{/owner}{/repo}',
+        subscriptions_url: 'https://api.github.com/users/larswww/subscriptions',
+        organizations_url: 'https://api.github.com/users/larswww/orgs',
+        repos_url: 'https://api.github.com/users/larswww/repos',
+        events_url: 'https://api.github.com/users/larswww/events{/privacy}',
+        received_events_url: 'https://api.github.com/users/larswww/received_events',
+        type: 'User',
+        site_admin: false }
+};

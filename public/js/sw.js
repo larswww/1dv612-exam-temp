@@ -1,21 +1,32 @@
+'use strict';
+let url;
+
 self.addEventListener('push', function(event) {
     debugger;
     console.log('[Service Worker] Push Received.');
     console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
     console.log(event);
 
+    let payload = safelyParse(event.data.text());
 
-    const title = 'Github Notification';
-    const options = {
-        body: `'${event.data.text()}'`,
-        icon: 'images/icon.png',
-        badge: 'images/badge.png'
-    };
+    if (payload) {
+        url = payload.notification.url;
 
-    event.waitUntil(self.registration.showNotification(title, options));
+        const title = payload.notification.title;
+        const options = {
+            body: payload.notification.body,
+            icon: payload.notification.icon,
+            badge: 'images/badge.png'
+        };
+
+        event.waitUntil(self.registration.showNotification(title, options));
+
+
+    }
 });
 
 self.addEventListener('notificationclick', function(event) {
+    debugger;
     console.log('[Service Worker] Notification click Received.');
     console.log(event);
 
@@ -25,3 +36,14 @@ self.addEventListener('notificationclick', function(event) {
         clients.openWindow('https://chinese5k.com')
     );
 });
+
+
+function safelyParse(hopefullyJSON) {
+
+    try {
+        return JSON.parse(hopefullyJSON);
+    } catch (e) {
+        return false;
+    }
+
+}

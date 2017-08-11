@@ -23,19 +23,17 @@ let subscribeTo = function (subscription) {
 
 };
 
-function toSubscribers(subscribers, notification) {
+function toSubscriber(subscription, notification) {
 
-    let payloadText = notificationHelper.getText(notification.event);
     let options = {
         headers: {
-            "name":"value"
+            "name": "value"
         }
     };
 
-    subscribers.forEach(subscriber => {
-        let subs = JSON.parse(subscriber.subscription);
-        webpush.sendNotification(subs, payloadText, options)
-    })
+    let jsonPayload = JSON.stringify(notification);
+
+    webpush.sendNotification(JSON.parse(subscription), jsonPayload, options)
 }
 
 //
@@ -52,4 +50,4 @@ function toSubscribers(subscribers, notification) {
 // webpush.sendNotification(pushSubscription, 'Your Push Payload Text');
 
 exports.subscribe = subscribeTo;
-exports.toSubscribers = toSubscribers;
+exports.toSubscriber = toSubscriber;

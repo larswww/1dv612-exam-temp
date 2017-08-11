@@ -14,7 +14,6 @@ CORE.create_module('dashboard', function (sb) {
         };
 
         var data = {};
-
         var pushEvents;
         var releaseEvents;
         var createEvents;
@@ -32,65 +31,85 @@ CORE.create_module('dashboard', function (sb) {
 
     };
 
-    var subscribeHook = function (event) {
-        debugger;
+    var isSubscribed = function (button, alreadySubscribed) {
+        // change the text etc for current target.
+        // button color
+
+        if (alreadySubscribed) {
+            // change text content
+            // change color
+        }
+    };
+
+    var subButtonInfo = function (event) {
+
         event.preventDefault();
         event.stopPropagation();
 
-        var hookUrl = event.currentTarget.getAttribute('data-hook');
-        var org = event.currentTarget.getAttribute('data-org');
+        isSubscribed(event.currentTarget, true);
+
+        return {
+            hookUrl: event.currentTarget.getAttribute('data-hook'),
+            org: event.currentTarget.getAttribute('data-org')
+        };
+    };
+
+    var subscribeHook = function (event) {
+
+        // todo get more form info i.e. checkboxes with spec sub settings.
 
         sb.notify({
             type: 'create-hook',
-            data: {
-                url: hookUrl,
-                org: org
-            }
+            data: subButtonInfo(event),
         });
 
         sb.removeEvent(event.currentTarget, 'click', subscribeHook);
+        sb.addEvent(event.currentTarget, 'click', unsubscribeHook);
     };
 
-    var createOrganisations = function (orgs) {
+    var unsubscribeHook = function (event) {
 
-        var panelDefault = $('<div class="panel panel-default">');
-        var panelHeading = $('<div class="panel-heading">Your Organisations</div>');
-
-        var orgList = $('<div class="panel-body"></div>');
-        var orgNav = $('<ul class="nav nav-pills"></ul>');
-        var orgContent = $('<div class="tab-content"></div>');
-
-        orgs.data.forEach(function (orgObj) {
-            var pill = $('<li><a href="#' + orgObj.login + '-pills" data-toggle="tab" aria-expanded="true">' + orgObj.login + '</a></li>');
-            var desc = $('<div class="tab-pane fade in" id="' + orgObj.login + '-pills"> <a href="' + orgObj.url + '">' + orgObj.login + '</a> <p>' + orgObj.description + '</p></div>');
-            var subButton = $('<button type="button" class="btn btn-primary subs" data-org="' + orgObj.login + '" data-hook="' + orgObj.hooks_url + '">Subscribe</button>');
-
-            debugger;
-            sb.addEvent(subButton, 'click', subscribeHook);
-
-            pill.appendTo(orgNav);
-            subButton.appendTo(desc);
-            desc.appendTo(orgContent);
-
+        sb.notify({
+            type: 'delete-hook',
+            data: subButtonInfo(event)
         });
 
-        orgNav.appendTo(orgList);
-        orgContent.appendTo(orgList);
-        panelHeading.appendTo(panelDefault);
-        orgList.appendTo(panelDefault);
+        sb.removeEvent(event.currentTarget, 'click', unsubscribeHook);
+        sb.addEvent(event.currentTarget, 'click', subscribeHook);
+    };
 
-        console.log(orgList);
-        $('#page-here').append(panelDefault);
+    var subscribeButtons = function (subscribedOrgs) {
 
+        // i get an object with org name,
+        // use button state function
+        // determine event state.
+
+        // $('.subs').each(function () {
+        //     debugger;
+        //     var currentOrg = this.getAttribute('data-org');
+        //
+        //     if (subscribedOrgs[currentOrg]) {
+        //         isSubscribed(this, true);
+        //         sb.addEvent(this, 'click', unsubscribeHook);
+        //
+        //     } else {
+        //         sb.addEvent(this, 'click', subscribeHook);
+        //
+        //     }
+        //
+        // });
     };
 
     return {
         init: function () {
             console.log("dash");
             panelTemplate = sb.template.panel();
+            subscribeButtons();
             sb.listen({
                 'github-events': this.createEventChart,
-                'github-organisations': this.createOrganisations
+            });
+            sb.listen({
+                'user-subscriptions': this.subscribeButtons
             })
         },
 
@@ -102,8 +121,9 @@ CORE.create_module('dashboard', function (sb) {
             createEventChart(data);
         },
 
-        createOrganisations: function (data) {
-            createOrganisations(data);
+        subscribeButtons: function (subs) {
+            debugger;
+            subscribeButtons(subs)
         }
     }
 });

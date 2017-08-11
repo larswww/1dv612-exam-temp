@@ -2,6 +2,7 @@
 const githubAPI = require('../model/githubAPI');
 const webPush = require('../model/webPush');
 const db = require('../model/db');
+const createNotification = require('../model/helpers/notification');
 let connectedSocket;
 
 function socketController(socket) {
@@ -11,9 +12,18 @@ function socketController(socket) {
 
     socket.on('create-hook', org => {
         if (socket.request.user && socket.request.user.logged_in) {
-            githubAPI.createHook(org);
-            db.subscribe(org, socket.request.user)
+            githubAPI.createHook(org, socket.request.user.id).then(hook => {
+                db.subscribe(hook, socket.request.user)
+            });
         }
+    });
+
+    socket.on('delete-hook', org => {
+       if (socket.request.user && socket.request.user.logged_in) {
+           db.unsubscribe(socket.request.user, org).then(hookID => {
+
+           })
+       }
 
     });
 
@@ -22,9 +32,10 @@ function socketController(socket) {
     //     db.userNotifications();
     // });
 
-    socket.on('push-subscription', data => {
-        db.saveSubscription(data, socket.request.user);
-        webPush.subscribe(data);
+    socket.on('push-subscription', subscription => {
+        db.saveSubscription(subscription, socket.request.user);
+        let newNotice = createNotification.format(socket.request.user.id, "sub");
+        webPush.toSubscriber(JSON.stringify(subscription), newNotice);
     });
 
 }
@@ -41,8 +52,11 @@ function emit(event, data) {
             // do stuff with repos?
             break;
         case 'hook-created':
-
-
+            // do smth
+            break;
+        case 'user-subscriptions':
+            // needed?
+            break;
     }
 }
 

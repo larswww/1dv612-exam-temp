@@ -6,6 +6,8 @@ const db = require('../model/db');
 const webPush = require('../model/webPush');
 const createNotification = require('../model/helpers/notification');
 const githubAPI = require('../model/githubAPI');
+const socket = require('./socket');
+const paramValidationHelper = require('./helpers/validateUserIDparam');
 
 let env = {
     VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY
@@ -16,8 +18,12 @@ router.get('/login', function (req, res) {
 });
 
 router.get('/', ensureLoggedIn, function (req, res) {
-    githubAPI.basicRequests().then(git => {
+    githubAPI.basicRequests(req.user.accessToken).then(git => {
         res.render('dashboard', {title: 'Express', env: env, user: req.user, git: git});
+        db.handleLogin(req.user).then((subscriptions, notifications) => {
+            if (subscriptions) socket.emit('user-subscriptions', subscriptions);
+            if (notifications) socket.emit('user-notifications', notifications);
+        });
     });
 });
 
@@ -30,39 +36,54 @@ router.get('/auth/github/callback',
 );
 
 router.get('/auth/success',
-    //ensureLoggedIn,
+    ensureLoggedIn,
     function (req, res) {
-       // githubAPI.createClient(req.user.accessToken);
+        githubAPI.createClient(req.user.accessToken);
         db.handleLogin(req.user);
-    res.redirect('/');
+        res.redirect('/');
     });
 
 router.get('/logout', ensureLoggedIn, function (req, res) {
     req.logout();
-    res.redirect('/');
+    res.redirect('/login');
 });
 
-router.post('/webhook/payload', function (req, res, next) {
-    console.log('webhook');
-    console.log(req.body);
+router.post('/webhook/payload/:id', function (req, res) {
+    let userId = paramValidationHelper(req.params.id);
     res.status(200);
     res.send();
 
-    let newNotice = createNotification.format(req.headers['x-github-event'], req.body);
+    if (userId) {
+        let newNotice = createNotification.format(req.params.id, req.headers['x-github-event'], req.body);
 
-    //let createNotification. = req.headers['x-github-event'];
+        db.getUser(userId).then(user => {
 
-    db.findSubscribers(newNotice).then(subscribers => {
-        webPush.toSubscribers(subscribers, newNotice);
-        db.saveNotification(subscribers, newNotice);
-    });
+            if (user) {
+                // res.status(200); // will the response always be fast enough?
+                // res.send();
+                if (user._doc.subscription) webPush.toSubscriber(user._doc.subscription, newNotice);
+                db.saveNotification(user, newNotice);
 
-    /*
-     if ( req.ip != '131.103.20.165' && req.ip != '131.103.20.166' ) {
-     res.json({ message : 'Untrusted origin' });
-     return;
-     }
-     */
+            } else {
+                res.status(404);
+            }
+
+        });
+
+        db.findSubscribers(newNotice).then(subscribers => {
+            webPush.toSubscribers(subscribers, newNotice);
+            db.saveNotification(subscribers, newNotice);
+        });
+
+        /*
+         if ( req.ip != '131.103.20.165' && req.ip != '131.103.20.166' ) {
+         res.json({ message : 'Untrusted origin' });
+         return;
+         }
+         */
+    } else {
+        console.log('no user id in param')
+    }
 });
 
 module.exports = router;

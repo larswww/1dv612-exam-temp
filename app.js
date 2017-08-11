@@ -1,33 +1,32 @@
 'use strict';
 
-let express = require('express');
-let http = require('http');
-let dotenv = require('dotenv');
+const express = require('express');
+const http = require('http');
+const dotenv = require('dotenv');
 
-let cookieParser = require('cookie-parser');
-let session = require('express-session');
-let RedisStore = require('connect-redis')(session);
-let redis = require('redis');
-let redisClient = redis.createClient();
-let sessionStore = new RedisStore({ client: redisClient });
-let logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+const redis = require('redis');
+const redisClient = redis.createClient();
+const sessionStore = new RedisStore({ client: redisClient });
+const logger = require('morgan');
 
-let bodyParser = require('body-parser');
-let handlebars = require('express-handlebars').create({
-    defaultLayout: 'main',
-});
+const bodyParser = require('body-parser');
+const hbsHelpers = require('./views/helpers');
+const handlebars = require('express-handlebars').create(hbsHelpers);
 
-let auth = require('./model/auth');
+const auth = require('./model/auth');
 
-let db = require('./model/db');
+const db = require('./model/db');
 
-let socketController = require('./controller/socket');
+const socketController = require('./controller/socket');
 
 let server;
 
 dotenv.load();
 
-let app = express();
+const app = express();
 
 function startServer() {
 
@@ -35,10 +34,12 @@ function startServer() {
         console.log('Express started in on http://localhost:' + process.env.PORT + '; press Ctrl-C to terminate.');
     });
 
-    db.connect(process.env.MLAB_CONNECTION_STRING);
+    db.connect(process.env.MLAB_CONNECTION_STRING).then(() => {
+        //let testFile = require('./test-file')();
+    });
 
-    let io = require('socket.io')(server);
-    let passportSocketIo = require('passport.socketio');
+    const io = require('socket.io')(server);
+    const passportSocketIo = require('passport.socketio');
 
     io.use(passportSocketIo.authorize({
         cookieParser: cookieParser,
@@ -73,7 +74,6 @@ app.use(session({
 app.use(auth.initialize());
 app.use(auth.session());
 
-
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
@@ -84,7 +84,6 @@ app.use(function (req, res, next) {
 //-- Routes --//
 
 app.use('/', require('./controller/routes.js'));
-
 
 // Fånga och ge error till handler
 app.use(function (req, res, next) {
@@ -102,6 +101,7 @@ if (app.get('env') === 'development') {
             error: err,
         });
     });
+    process.on('unhandledRejection', r => console.error(r));
 }
 
 // Production error handler utan stacktrace
@@ -112,7 +112,6 @@ app.use(function (err, req, res, next) {
         error: {},
     });
 });
-
 
 if (require.main === module) {
     // app running directly

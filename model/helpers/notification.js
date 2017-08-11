@@ -1,28 +1,25 @@
 'use strict';
+const payloadHandler = require('./payloadHandler');
 
-function formatNotification(event, payload) {
+function formatNotification(userID, event, payload) {
 
-    let notice = new Object();
+    let notice = {};
     notice.event = event;
+    notice.forUser = userID; // todo verify the UID
 
     try {
 
-        if (payload.organization) {
-            notice.organization = payload.organization.id;
-
-        } else if (payload.repository) {
-            notice.repository = payload.repository.id;
-
-        }
+        notice.notification = payloadHandler(event, payload);
 
         console.log(notice);
         return notice;
 
     } catch (e) {
-        console.error(e, event, reqBody);
+        console.error(e, event, payload);
     }
-
 }
+
+// get the xgithub event type and the payload itself, safely JSON parse that.
 
 function getText(event) {
     let text;

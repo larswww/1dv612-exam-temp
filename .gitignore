@@ -8,3 +8,4 @@ config/environment/production
 .env
 push-notifications-master
 model/githubTest.js
+test-file.js

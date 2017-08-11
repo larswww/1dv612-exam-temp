@@ -33,6 +33,11 @@ CORE.create_module('sockets', function (sb) {
        socket.on('hook-created', function (data) {
           console.log('hook-created', data)
        });
+
+       socket.on('user-subscriptions', function (data) {
+          console.log(data);
+
+       });
    };
 
    var pushSubscription = function (subscription) {

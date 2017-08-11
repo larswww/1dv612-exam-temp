@@ -104,7 +104,7 @@ var CORE = (function () {
         log: function (severity, message) {
             if (debug) {
                 console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](message);
-            } else {br
+            } else {
                 // send to the server
             }
         },
@@ -145,6 +145,7 @@ var CORE = (function () {
                         fn = evt;
                         evt = 'click';
                     }
+                    debugger;
                     jQuery(element).bind(evt, fn);
                 } else {
                     // log wrong arguments
