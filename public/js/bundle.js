@@ -227,33 +227,6 @@ CORE.create_module('hooks', function (sb) {
 var CORE = require('../core');
 
 CORE.create_module('dashboard', function (sb) {
-    var panelTemplate;
-
-    var createEventChart = function (eventData) {
-        var eventCount = {
-            IssuesEvent: 0,
-            CreateEvent: 0,
-            PushEvent: 0,
-            ReleaseEvent: 0
-        };
-
-        var data = {};
-        var pushEvents;
-        var releaseEvents;
-        var createEvents;
-
-        eventData.events.forEach(function (obj) {
-            var year = obj.created_at.substr(0, 4);
-            eventCount[year] = eventCount
-        });
-
-        eventData.events.forEach(function (obj) {
-            var year = obj.created_at.substr(0, 4);
-            eventCount[year][obj.type] += 1;
-
-        });
-
-    };
 
     var isSubscribed = function (button, alreadySubscribed) {
         // change the text etc for current target.
@@ -279,6 +252,7 @@ CORE.create_module('dashboard', function (sb) {
     };
 
     var subscribeHook = function (event) {
+        debugger;
 
         // todo get more form info i.e. checkboxes with spec sub settings.
 
@@ -303,38 +277,29 @@ CORE.create_module('dashboard', function (sb) {
     };
 
     var subscribeButtons = function (subscribedOrgs) {
+        debugger;
 
-        // i get an object with org name,
-        // use button state function
-        // determine event state.
+        $('.subs').each(function () {
 
-        // $('.subs').each(function () {
-        //     debugger;
-        //     var currentOrg = this.getAttribute('data-org');
-        //
-        //     if (subscribedOrgs[currentOrg]) {
-        //         isSubscribed(this, true);
-        //         sb.addEvent(this, 'click', unsubscribeHook);
-        //
-        //     } else {
-        //         sb.addEvent(this, 'click', subscribeHook);
-        //
-        //     }
-        //
-        // });
+            var currentOrg = this.getAttribute('data-org');
+
+            if (subscribedOrgs[currentOrg]) {
+                isSubscribed(this, true);
+                sb.addEvent(this, 'click', unsubscribeHook);
+
+            } else {
+                sb.addEvent(this, 'click', subscribeHook);
+
+            }
+
+        });
     };
 
     return {
         init: function () {
-            console.log("dash");
-            panelTemplate = sb.template.panel();
-            subscribeButtons();
             sb.listen({
-                'github-events': this.createEventChart,
+                'prefs-subscriptions': this.subscribeButtons
             });
-            sb.listen({
-                'user-subscriptions': this.subscribeButtons
-            })
         },
 
         destroy: function () {
@@ -346,7 +311,6 @@ CORE.create_module('dashboard', function (sb) {
         },
 
         subscribeButtons: function (subs) {
-            debugger;
             subscribeButtons(subs)
         }
     }
@@ -561,8 +525,6 @@ CORE.create_module('serviceWorker', function (sb) {
     }
 
     function updateSubscriptionOnServer(subscription) {
-        // TODO: Send subscription to application server
-        debugger;
 
         const subscriptionJson = document.querySelector('.js-subscription-json');
         const subscriptionDetails =
@@ -656,10 +618,14 @@ CORE.create_module('sockets', function (sb) {
           console.log('hook-created', data)
        });
 
-       socket.on('user-subscriptions', function (data) {
-          console.log(data);
+       socket.on('user-prefs', function (prefs) {
+           debugger;
+           sb.notify({
+               type: 'prefs-subscriptions',
+               data: prefs.subscriptions
+           })
+       })
 
-       });
    };
 
    var pushSubscription = function (subscription) {

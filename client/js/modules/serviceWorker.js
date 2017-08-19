@@ -93,8 +93,6 @@ CORE.create_module('serviceWorker', function (sb) {
     }
 
     function updateSubscriptionOnServer(subscription) {
-        // TODO: Send subscription to application server
-        debugger;
 
         const subscriptionJson = document.querySelector('.js-subscription-json');
         const subscriptionDetails =

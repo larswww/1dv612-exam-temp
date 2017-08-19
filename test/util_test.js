@@ -74,3 +74,14 @@ describe('notification tests', () => {
 
 
 });
+
+
+describe('db preferences test', () => {
+
+    it('should return an object with subscriptions and notifications', () => {
+
+
+
+    })
+
+});

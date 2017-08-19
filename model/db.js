@@ -2,6 +2,8 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const schema = require('./schemas');
+const formatPrefs = require('./helpers/formatPreferencesForView');
+
 let db;
 
 function connect(credential) {
@@ -143,8 +145,6 @@ function findSubscribers(event) {
         }
 
     });
-
-    // for repo
 }
 
 function saveNotification(subscribers, notification) {
@@ -183,47 +183,66 @@ function subscribeTo(hook, user) {
 
 function unsubscribeTo(org, user) {
 
-    schema.user.findOne({id: user.id }).then(userDoc => {
+    schema.user.findOne({id: user.id}).then(userDoc => {
 
-        schema.subscription.update({user: userDoc._id, hooks: {$elemMatch: {login: org }}},
+        schema.subscription.update({user: userDoc._id, hooks: {$elemMatch: {login: org}}},
             {
                 $pull: {
-                    hooks: { login: org }
+                    hooks: {login: org}
                 }
             }
         )
     }).then((error, writeResult) => {
-       if (error) console.error(error);
-       console.log(writeResult);
+        if (error) console.error(error);
+        console.log(writeResult);
     });
 }
 
 
 function getSavedPreferencesFor(user) {
-    let notificationPromises = [];
 
     return new Promise((resolve, reject) => {
 
-           schema.subscription.findOne({user: user._id}).then(subDoc => {
+        let promises = [getNotificationsFor(user), getSubscriptionsFor(user)];
 
-               if (subDoc) {
-                   subDoc.hooks.forEach(hook => {
-                       notificationPromises.push(schema.notification.find({org: hook.org })); // todo check the event types array
-                   });
+        Promise.all(promises).then(values => {
+            resolve(formatPrefs(values));
 
-                   Promise.all(notificationPromises, values => {
-                       resolve(subDoc, values);
-                   }).catch(e => {
-                       reject(e);
-                   })
-               } else {
-                   let newSub = new schema.subscription({user: user._id});
-                   newSub.save();
-                   resolve(false);
-               }
-           });
+        }).catch(e => {
+            reject(e);
+        });
+
+        // return notifications and subscriptions.
+
+    });
+}
+
+function getSubscriptionsFor(user) {
+
+    return new Promise((resolve, reject) => {
+
+        schema.subscription.findOne({user: user._id}).then(subDoc => {
+
+            if (subDoc) {
+                resolve(subDoc)
+
+            } else {
+                let newSub = new schema.subscription({user: user._id});
+                newSub.save();
+                resolve(false);
+            }
+        });
     })
 }
+
+function getNotificationsFor(user) {
+
+    return new Promise((resolve, reject) => {
+        resolve(true);
+
+    })
+}
+
 
 function getUser(userID) {
 
@@ -240,7 +259,6 @@ function getUser(userID) {
 }
 
 
-
 exports.connect = connect;
 exports.handleLogin = handleLogin;
 exports.saveSubscription = saveSubscription;
@@ -250,3 +268,4 @@ exports.saveNotification = saveNotification;
 exports.subscribe = subscribeTo;
 exports.unsubscribe = unsubscribeTo;
 exports.getUser = getUser;
+exports.getSavedPreferencesFor = getSavedPreferencesFor;

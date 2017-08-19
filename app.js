@@ -35,7 +35,7 @@ function startServer() {
     });
 
     db.connect(process.env.MLAB_CONNECTION_STRING).then(() => {
-        //let testFile = require('./test-file')();
+        // let testFile = require('./test-file')();
     });
 
     const io = require('socket.io')(server);

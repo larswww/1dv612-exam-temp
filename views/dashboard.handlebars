@@ -38,12 +38,30 @@
             <!-- Tab panes -->
             <div class="tab-content">
 
+                {{log prefs}}
+
                 {{#each git.orgs}}
 
-                    <div class="tab-pane fade" id="{{this.login}}">
-                        <h4>{{titleOrOrg this}}</h4>
-                        <button type="button" class="btn btn-primary subs" data-org="{{this.login}}" data-hook="{{this.hooks_url}}">Subscribe</button>
-                    </div>
+                    {{#if (subOrNot this ../prefs.subscriptions)}}
+
+                        <div class="tab-pane fade" id="{{this.login}}">
+                            <h4>{{titleOrOrg this}}</h4>
+                            <button type="button" class="btn btn-primary subs" data-org="{{this.login}}"
+                                    data-hook="{{this.hooks_url}}">Unsubscribe
+                            </button>
+                        </div>
+
+                    {{else}}
+
+                        <div class="tab-pane fade" id="{{this.login}}">
+                            <h4>{{titleOrOrg this}}</h4>
+                            <button type="button" class="btn btn-primary subs" data-org="{{this.login}}"
+                                    data-hook="{{this.hooks_url}}">Subscribe
+                            </button>
+                        </div>
+
+                    {{/if}}
+
 
                 {{/each}}
 

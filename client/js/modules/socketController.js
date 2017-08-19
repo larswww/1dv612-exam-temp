@@ -34,10 +34,14 @@ CORE.create_module('sockets', function (sb) {
           console.log('hook-created', data)
        });
 
-       socket.on('user-subscriptions', function (data) {
-          console.log(data);
+       socket.on('user-prefs', function (prefs) {
+           debugger;
+           sb.notify({
+               type: 'prefs-subscriptions',
+               data: prefs.subscriptions
+           })
+       })
 
-       });
    };
 
    var pushSubscription = function (subscription) {

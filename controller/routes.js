@@ -1,7 +1,7 @@
 'use strict';
 const router = require('express').Router();
 const passport = require('passport');
-const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn();
+const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 const db = require('../model/db');
 const webPush = require('../model/webPush');
 const createNotification = require('../model/helpers/notification');
@@ -17,14 +17,16 @@ router.get('/login', function (req, res) {
     res.render('start');
 });
 
-router.get('/', ensureLoggedIn, function (req, res) {
-    githubAPI.basicRequests(req.user.accessToken).then(git => {
-        res.render('dashboard', {title: 'Express', env: env, user: req.user, git: git});
-        db.handleLogin(req.user).then((subscriptions, notifications) => {
-            if (subscriptions) socket.emit('user-subscriptions', subscriptions);
-            if (notifications) socket.emit('user-notifications', notifications);
-        });
+router.get('/', ensureLoggedIn('/login'), function (req, res) {
+    Promise.all([githubAPI.basicRequests(req.user.accessToken), db.handleLogin(req.user)]).then(userSettings => {
+        let context = {title: 'Express', env: env, user: req.user, git: userSettings[0], prefs: userSettings[1]};
+        res.render('dashboard', context);
     });
+    // githubAPI.basicRequests(req.user.accessToken).then(git => {
+    //     db.handleLogin(req.user).then(prefs => { //todo could this code create a race condition?
+    //         socket.emit('user-prefs', prefs);
+    //     });
+    // });
 });
 
 router.get('/auth/github',
