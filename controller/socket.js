@@ -18,19 +18,14 @@ function socketController(socket) {
         }
     });
 
+    //todo send notification on unsub?
     socket.on('delete-hook', org => {
        if (socket.request.user && socket.request.user.logged_in) {
-           db.unsubscribe(socket.request.user, org).then(hookID => {
-
+           db.unsubscribe(org, socket.request.user).then(hookID => {
+               githubAPI.deleteHook(hookID, org);
            })
        }
-
     });
-
-    // socket.on('base-req', () => {
-    //     githubAPI.basicRequests();
-    //     db.userNotifications();
-    // });
 
     socket.on('push-subscription', subscription => {
         db.saveSubscription(subscription, socket.request.user);

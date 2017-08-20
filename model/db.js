@@ -183,18 +183,22 @@ function subscribeTo(hook, user) {
 
 function unsubscribeTo(org, user) {
 
-    schema.user.findOne({id: user.id}).then(userDoc => {
+    return new Promise((resolve, reject) => {
 
-        schema.subscription.update({user: userDoc._id, hooks: {$elemMatch: {login: org}}},
-            {
-                $pull: {
-                    hooks: {login: org}
+        schema.user.findOne({id: user.id}).then(userDoc => {
+
+            schema.subscription.update({user: userDoc._id, hooks: {$elemMatch: {login: org}}},
+                {
+                    $pull: {
+                        hooks: {login: org}
+                    }
                 }
-            }
-        )
-    }).then((error, writeResult) => {
-        if (error) console.error(error);
-        console.log(writeResult);
+            ).then((error, writeResult) => {
+                if (error) console.error(error);
+                resolve();
+                console.log(writeResult);
+            });
+        })
     });
 }
 

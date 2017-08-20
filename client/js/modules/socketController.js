@@ -44,9 +44,17 @@ CORE.create_module('sockets', function (sb) {
 
    };
 
+   //todo could be DRYer
    var pushSubscription = function (subscription) {
-       debugger;
        socket.emit('push-subscription', subscription);
+   };
+   
+   var deleteHook = function (data) {
+       socket.emit('delete-hook', data.org)
+   };
+
+   var createHook = function (hookUrl) {
+       socket.emit('create-hook', {url: hookUrl});
    };
 
     return {
@@ -55,7 +63,15 @@ CORE.create_module('sockets', function (sb) {
             socketController();
             sb.listen({
                 'push-subscription': pushSubscription
-            })
+            });
+
+            sb.listen({
+                'create-hook': createHook
+            });
+
+            sb.listen({
+                'delete-hook': deleteHook
+            });
         },
         
         destroy: function () {

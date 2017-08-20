@@ -145,7 +145,6 @@ var CORE = (function () {
                         fn = evt;
                         evt = 'click';
                     }
-                    debugger;
                     jQuery(element).bind(evt, fn);
                 } else {
                     // log wrong arguments

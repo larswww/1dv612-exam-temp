@@ -146,7 +146,6 @@ var CORE = (function () {
                         fn = evt;
                         evt = 'click';
                     }
-                    debugger;
                     jQuery(element).bind(evt, fn);
                 } else {
                     // log wrong arguments
@@ -186,64 +185,25 @@ var CORE = (function () {
 
 module.exports = CORE;
 
-},{"./sandbox":9}],2:[function(require,module,exports){
+},{"./sandbox":8}],2:[function(require,module,exports){
 var core = require('./core');
 var Sandbox = require('./sandbox');
 var profileModule = require('./modules/profile');
 var socketModule = require('./modules/socketController');
 var dashboard = require('./modules/dashboard');
 var handleClick = require('./modules/handleClick');
-var createHook = require('./modules/createHook');
 var serviceWorker = require('./modules/serviceWorker');
-},{"./core":1,"./modules/createHook":3,"./modules/dashboard":4,"./modules/handleClick":5,"./modules/profile":6,"./modules/serviceWorker":7,"./modules/socketController":8,"./sandbox":9}],3:[function(require,module,exports){
-'use strict';
-var CORE = require('../core');
-
-CORE.create_module('hooks', function (sb) {
-
-    var createHook = function (hookUrl) {
-        var socket = sb.socket();
-
-        socket.emit('create-hook', {url: hookUrl})
-    };
-
-    return {
-        init: function () {
-            sb.listen({
-                'create-hook': createHook
-            })
-
-        },
-
-        destroy: function () {
-
-        }
-    }
-
-});
-},{"../core":1}],4:[function(require,module,exports){
+},{"./core":1,"./modules/dashboard":3,"./modules/handleClick":4,"./modules/profile":5,"./modules/serviceWorker":6,"./modules/socketController":7,"./sandbox":8}],3:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
 
 CORE.create_module('dashboard', function (sb) {
 
-    var isSubscribed = function (button, alreadySubscribed) {
-        // change the text etc for current target.
-        // button color
-
-        if (alreadySubscribed) {
-            // change text content
-            // change color
-        }
-    };
-
     var subButtonInfo = function (event) {
 
         event.preventDefault();
         event.stopPropagation();
-
-        isSubscribed(event.currentTarget, true);
 
         return {
             hookUrl: event.currentTarget.getAttribute('data-hook'),
@@ -252,9 +212,8 @@ CORE.create_module('dashboard', function (sb) {
     };
 
     var subscribeHook = function (event) {
-        debugger;
 
-        // todo get more form info i.e. checkboxes with spec sub settings.
+        debugger;
 
         sb.notify({
             type: 'create-hook',
@@ -263,9 +222,12 @@ CORE.create_module('dashboard', function (sb) {
 
         sb.removeEvent(event.currentTarget, 'click', subscribeHook);
         sb.addEvent(event.currentTarget, 'click', unsubscribeHook);
+        subscribed(true, event.currentTarget);
     };
 
     var unsubscribeHook = function (event) {
+
+        debugger;
 
         sb.notify({
             type: 'delete-hook',
@@ -274,48 +236,44 @@ CORE.create_module('dashboard', function (sb) {
 
         sb.removeEvent(event.currentTarget, 'click', unsubscribeHook);
         sb.addEvent(event.currentTarget, 'click', subscribeHook);
+        subscribed(false, event.currentTarget);
     };
 
-    var subscribeButtons = function (subscribedOrgs) {
-        debugger;
+    var subscribeButtons = function () {
+
+        $('.unsubs').each(function () {
+                sb.addEvent(this, 'click', unsubscribeHook);
+        });
 
         $('.subs').each(function () {
-
-            var currentOrg = this.getAttribute('data-org');
-
-            if (subscribedOrgs[currentOrg]) {
-                isSubscribed(this, true);
-                sb.addEvent(this, 'click', unsubscribeHook);
-
-            } else {
-                sb.addEvent(this, 'click', subscribeHook);
-
-            }
-
+            sb.addEvent(this, 'click', subscribeHook);
         });
+
+    };
+
+    var subscribed = function (bool, target) {
+
+        if (bool) {
+            target.className = 'btn btn-danger unsubs';
+            target.innerText = 'Unsubscribe';
+
+        } else {
+            target.className = 'btn btn-primary subs';
+            target.innerText = 'Subscribe';
+        }
     };
 
     return {
         init: function () {
-            sb.listen({
-                'prefs-subscriptions': this.subscribeButtons
-            });
+            subscribeButtons();
         },
 
         destroy: function () {
 
         },
-
-        createEventChart: function (data) {
-            createEventChart(data);
-        },
-
-        subscribeButtons: function (subs) {
-            subscribeButtons(subs)
-        }
     }
 });
-},{"../core":1}],5:[function(require,module,exports){
+},{"../core":1}],4:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -365,7 +323,7 @@ CORE.create_module('clickHandler', function (sb) {
         }
     }
 });
-},{"../core":1}],6:[function(require,module,exports){
+},{"../core":1}],5:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
@@ -429,7 +387,7 @@ CORE.create_module('logout', function (sb) {
     }
 
 });
-},{"../core":1}],7:[function(require,module,exports){
+},{"../core":1}],6:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
@@ -581,7 +539,7 @@ CORE.create_module('serviceWorker', function (sb) {
     
 
 });
-},{"../core":1}],8:[function(require,module,exports){
+},{"../core":1}],7:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -629,8 +587,16 @@ CORE.create_module('sockets', function (sb) {
    };
 
    var pushSubscription = function (subscription) {
-       debugger;
        socket.emit('push-subscription', subscription);
+   };
+   
+   var deleteHook = function (data) {
+       debugger;
+       socket.emit('delete-hook', data.org)
+   };
+
+   var createHook = function (hookUrl) {
+       socket.emit('create-hook', {url: hookUrl});
    };
 
     return {
@@ -639,7 +605,15 @@ CORE.create_module('sockets', function (sb) {
             socketController();
             sb.listen({
                 'push-subscription': pushSubscription
-            })
+            });
+
+            sb.listen({
+                'create-hook': createHook
+            });
+
+            sb.listen({
+                'delete-hook': deleteHook
+            });
         },
         
         destroy: function () {
@@ -649,7 +623,7 @@ CORE.create_module('sockets', function (sb) {
 
 
 });
-},{"../core":1}],9:[function(require,module,exports){
+},{"../core":1}],8:[function(require,module,exports){
 'use strict';
 
 var Sandbox = {
