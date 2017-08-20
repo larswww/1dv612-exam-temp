@@ -35,7 +35,6 @@ CORE.create_module('sockets', function (sb) {
        });
 
        socket.on('user-prefs', function (prefs) {
-           debugger;
            sb.notify({
                type: 'prefs-subscriptions',
                data: prefs.subscriptions

@@ -213,8 +213,6 @@ CORE.create_module('dashboard', function (sb) {
 
     var subscribeHook = function (event) {
 
-        debugger;
-
         sb.notify({
             type: 'create-hook',
             data: subButtonInfo(event),
@@ -226,8 +224,6 @@ CORE.create_module('dashboard', function (sb) {
     };
 
     var unsubscribeHook = function (event) {
-
-        debugger;
 
         sb.notify({
             type: 'delete-hook',
@@ -577,7 +573,6 @@ CORE.create_module('sockets', function (sb) {
        });
 
        socket.on('user-prefs', function (prefs) {
-           debugger;
            sb.notify({
                type: 'prefs-subscriptions',
                data: prefs.subscriptions
@@ -586,12 +581,12 @@ CORE.create_module('sockets', function (sb) {
 
    };
 
+   //todo could be DRYer
    var pushSubscription = function (subscription) {
        socket.emit('push-subscription', subscription);
    };
    
    var deleteHook = function (data) {
-       debugger;
        socket.emit('delete-hook', data.org)
    };
 

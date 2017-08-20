@@ -17,8 +17,6 @@ CORE.create_module('dashboard', function (sb) {
 
     var subscribeHook = function (event) {
 
-        debugger;
-
         sb.notify({
             type: 'create-hook',
             data: subButtonInfo(event),
@@ -30,8 +28,6 @@ CORE.create_module('dashboard', function (sb) {
     };
 
     var unsubscribeHook = function (event) {
-
-        debugger;
 
         sb.notify({
             type: 'delete-hook',

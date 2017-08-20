@@ -120,28 +120,6 @@ function createHook(org, userID) {
         ghorg.hooks(function (s, d) {
             console.log('ghorg hooks');
         });
-
-        /**
-         * {
-  "type": "Organization",
-  "id": 13450962,
-  "name": "web",
-  "active": true,
-  "events": [
-    "*"
-  ],
-  "config": {
-    "content_type": "json",
-    "insecure_ssl": "1",
-    "url": "http://localhost:3001/webhook/callback"
-  },
-  "updated_at": "2017-04-26T14:16:28Z",
-  "created_at": "2017-04-26T14:16:28Z",
-  "url": "https://api.github.com/orgs/1DV611/hooks/13450962",
-  "ping_url": "https://api.github.com/orgs/1DV611/hooks/13450962/pings"
-}
-         */
-
     });
 }
 
@@ -151,9 +129,9 @@ function deleteHook(hookID, org) {
     // run this
     // return confirmation
 
-    let ghorg = client.org(org.url.org);
+    let ghorg = client.org(org);
 
-    ghorg.delete(hookID, (something, other, or) => {
+    ghorg.deleteHook(hookID, (something, other, or) => {
         console.log(something);
         console.log(other, or);
     })
