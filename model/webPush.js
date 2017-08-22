@@ -19,7 +19,7 @@ let subscribeTo = function (subscription) {
 
 function toSubscriber(subscription, notification) {
     console.log(subscription);
-    subscribeTo(subscription);
+    subscribeTo(JSON.parse(subscription));
 
     let jsonPayload = JSON.stringify(notification);
 
