@@ -9,7 +9,7 @@ webpush.setGCMAPIKey(process.env.GCM_API_KEY);
 webpush.setVapidDetails(
     'mailto:lw222ii@student.lnu.se',
     process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
+    process.env.VAPID_PRIVATE_KEY,
 );
 
 let subscribeTo = function (subscription) {
