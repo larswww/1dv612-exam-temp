@@ -18,17 +18,16 @@ let subscribeTo = function (subscription) {
 };
 
 function toSubscriber(subscription, notification) {
-    console.log(subscription);
-    subscribeTo(JSON.parse(subscription));
-
     let jsonPayload = JSON.stringify(notification);
 
+    console.log('sending webpush: ');
+    console.log(subscription);
     console.log(jsonPayload);
 
     webpush.sendNotification(JSON.parse(subscription), jsonPayload).then(result => {
-        console.log(result);
+        console.log('webpush.sendnotification result: ', result);
     }).catch(error => {
-       console.error(error);
+       console.error('webpush.sendnotification error: ', error);
     });
 }
 
