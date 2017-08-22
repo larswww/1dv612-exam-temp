@@ -24,7 +24,11 @@ function toSubscriber(subscription, notification) {
 
     console.log(jsonPayload);
 
-    webpush.sendNotification(JSON.parse(subscription), jsonPayload);
+    webpush.sendNotification(JSON.parse(subscription), jsonPayload).then(result => {
+        console.log(result);
+    }).catch(error => {
+       console.error(error);
+    });
 }
 
 exports.subscribe = subscribeTo;
