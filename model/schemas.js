@@ -45,15 +45,14 @@ let userSchema = new mongoose.Schema({
         unique: true
     },
 
+    subscription: {
+      type: String
+    },
+
     _raw: {
         type: String
     },
 
-    organizations: {
-        type: Array
-    },
-
-    notifications: [{ type: Schema.Types.ObjectId, ref: 'notification' }]
 
 });
 

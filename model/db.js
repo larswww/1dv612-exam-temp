@@ -41,7 +41,7 @@ function handleLogin(profile) {
                 console.error(err);
             }
 
-            if (matchingUser === null) {
+            if (matchingUser === null) { //todo this leads to wrong data going to
                 let newUser = new schema.user({
                     id: profile.id,
                     username: profile.username,
@@ -49,7 +49,9 @@ function handleLogin(profile) {
                     _raw: profile._raw,
                 });
 
-                newUser.save();
+                newUser.save().then(() => {
+                    // todo get the array for organizations.
+                });
                 resolve(false); // returning/resolving false bad practice but..?
             }
 
@@ -65,6 +67,8 @@ function handleLogin(profile) {
 }
 
 function saveSubscription(subscription, profile) {
+    console.log(subscription);
+    console.log(profile);
 
     let json = JSON.stringify(subscription);
 
@@ -84,8 +88,6 @@ function saveSubscription(subscription, profile) {
 
         if (matchingUser) {
             console.log('matched a user and go');
-            matchingUser.subscription = subscription;
-            matchingUser.save();
         }
 
     })
