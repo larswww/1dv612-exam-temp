@@ -19,7 +19,7 @@ CORE.create_module('dashboard', function (sb) {
 
         sb.notify({
             type: 'create-hook',
-            data: subButtonInfo(event),
+            data: subButtonInfo(event)
         });
 
         sb.removeEvent(event.currentTarget, 'click', subscribeHook);
@@ -41,12 +41,12 @@ CORE.create_module('dashboard', function (sb) {
 
     var subscribeButtons = function () {
 
-        $('.unsubs').each(function () {
-                sb.addEvent(this, 'click', unsubscribeHook);
-        });
-
         $('.subs').each(function () {
             sb.addEvent(this, 'click', subscribeHook);
+        });
+
+        $('.unsubs').each(function () {
+            sb.addEvent(this, 'click', unsubscribeHook);
         });
 
     };

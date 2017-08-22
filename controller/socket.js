@@ -11,6 +11,7 @@ function socketController(socket) {
     githubAPI.createClient(socket.request.user.accessToken);
 
     socket.on('create-hook', org => {
+        console.log(org);
         if (socket.request.user && socket.request.user.logged_in) {
             githubAPI.createHook(org, socket.request.user.id).then(hook => {
                 db.subscribe(hook, socket.request.user)

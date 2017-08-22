@@ -61,21 +61,21 @@ CORE.create_module('sockets', function (sb) {
             socket = sb.socket();
             socketController();
             sb.listen({
-                'push-subscription': pushSubscription
+                'push-subscription': this.pushSubscription,
+                'delete-hook': this.deleteHook,
+                'create-hook': this.createHook
             });
 
-            sb.listen({
-                'create-hook': createHook
-            });
 
-            sb.listen({
-                'delete-hook': deleteHook
-            });
         },
         
         destroy: function () {
 
-        }
+        },
+
+        pushSubscription: pushSubscription,
+        createHook: createHook,
+        deleteHook: deleteHook
     }
 
 

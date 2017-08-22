@@ -17,7 +17,9 @@ router.get('/login', function (req, res) {
     res.render('start');
 });
 
+//todo move callbacks to separate files.
 router.get('/', ensureLoggedIn('/login'), function (req, res) {
+    githubAPI.createClient(req.user.accessToken);
     Promise.all([githubAPI.basicRequests(req.user.accessToken), db.handleLogin(req.user)]).then(userSettings => {
         let context = {title: 'Express', env: env, user: req.user, git: userSettings[0], prefs: userSettings[1]};
         res.render('dashboard', context);
@@ -34,14 +36,14 @@ router.get('/auth/github',
 );
 
 router.get('/auth/github/callback',
-    passport.authenticate('github', {failureRedirect: '/login', successRedirect: '/auth/success'})
+    passport.authenticate('github', {failureRedirect: '/login', successRedirect: '/'})
 );
 
 router.get('/auth/success',
     ensureLoggedIn,
     function (req, res) {
         githubAPI.createClient(req.user.accessToken);
-        db.handleLogin(req.user);
+        // db.handleLogin(req.user);
         res.redirect('/');
     });
 
