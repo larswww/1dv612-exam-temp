@@ -58,26 +58,26 @@ router.post('/webhook/payload/:id', function (req, res) {
     res.send();
 
     if (userId) {
+        console.log(userId);
         let newNotice = createNotification.format(req.params.id, req.headers['x-github-event'], req.body);
 
         db.getUser(userId).then(user => {
 
+            console.log(user);
             if (user) {
-                // res.status(200); // will the response always be fast enough?
-                // res.send();
                 if (user._doc.subscription) webPush.toSubscriber(user._doc.subscription, newNotice);
                 db.saveNotification(user, newNotice);
 
             } else {
-                res.status(404);
+                console.error('didnt find relevant user', req.params.id);
             }
 
         });
 
-        db.findSubscribers(newNotice).then(subscribers => {
-            webPush.toSubscribers(subscribers, newNotice);
-            db.saveNotification(subscribers, newNotice);
-        });
+        // db.findSubscribers(newNotice).then(subscribers => {
+        //     webPush.toSubscribers(subscribers, newNotice);
+        //     db.saveNotification(subscribers, newNotice);
+        // });
 
         /*
          if ( req.ip != '131.103.20.165' && req.ip != '131.103.20.166' ) {
