@@ -2,7 +2,6 @@
 let url;
 
 self.addEventListener('push', function(event) {
-    debugger;
     console.log('[Service Worker] Push Received.');
     console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
     console.log(event);
@@ -26,7 +25,6 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
-    debugger;
     console.log('[Service Worker] Notification click Received.');
     console.log(event);
 
