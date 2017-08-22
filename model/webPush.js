@@ -18,8 +18,11 @@ let subscribeTo = function (subscription) {
 };
 
 function toSubscriber(subscription, notification) {
+    console.log(subscription);
 
     let jsonPayload = JSON.stringify(notification);
+
+    console.log(jsonPayload);
 
     webpush.sendNotification(JSON.parse(subscription), jsonPayload);
 }
