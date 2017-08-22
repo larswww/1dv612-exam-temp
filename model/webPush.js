@@ -1,14 +1,8 @@
 'use strict';
 const webpush = require('web-push');
 const dotenv = require('dotenv');
-const notificationHelper = require('../model/helpers/notification');
 
 dotenv.load();
-
-// VAPID keys should only be generated only once.
-// const vapidKeys = webpush.generateVAPIDKeys();
-// console.log(vapidKeys.publicKey);
-// console.log(vapidKeys.privateKey);
 
 webpush.setGCMAPIKey(process.env.GCM_API_KEY);
 
@@ -25,29 +19,10 @@ let subscribeTo = function (subscription) {
 
 function toSubscriber(subscription, notification) {
 
-    let options = {
-        headers: {
-            "name": "value"
-        }
-    };
-
     let jsonPayload = JSON.stringify(notification);
 
-    webpush.sendNotification(JSON.parse(subscription), jsonPayload, options)
+    webpush.sendNotification(JSON.parse(subscription), jsonPayload);
 }
-
-//
-//
-// // This is the same output of calling JSON.stringify on a PushSubscription
-// const pushSubscription = {
-//     endpoint: '.....',
-//     keys: {
-//         auth: '.....',
-//         p256dh: '.....'
-//     }
-// };
-//
-// webpush.sendNotification(pushSubscription, 'Your Push Payload Text');
 
 exports.subscribe = subscribeTo;
 exports.toSubscriber = toSubscriber;

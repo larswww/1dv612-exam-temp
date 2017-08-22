@@ -200,6 +200,8 @@ var CORE = require('../core');
 
 CORE.create_module('dashboard', function (sb) {
 
+    //todo pause state button
+
     var subButtonInfo = function (event) {
 
         event.preventDefault();
