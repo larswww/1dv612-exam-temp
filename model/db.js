@@ -84,8 +84,8 @@ function saveSubscription(subscription, profile) {
 
         if (matchingUser) {
             console.log('matched a user and go');
-            // matchingUser.subscription = subscription;
-            // matchingUser.save();
+            matchingUser.subscription = subscription;
+            matchingUser.save();
         }
 
     })
