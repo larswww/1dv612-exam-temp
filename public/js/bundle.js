@@ -185,20 +185,101 @@ var CORE = (function () {
 
 module.exports = CORE;
 
-},{"./sandbox":8}],2:[function(require,module,exports){
+},{"./sandbox":6}],2:[function(require,module,exports){
 var core = require('./core');
 var Sandbox = require('./sandbox');
-var profileModule = require('./modules/profile');
 var socketModule = require('./modules/socketController');
-var dashboard = require('./modules/dashboard');
-var handleClick = require('./modules/handleClick');
-var serviceWorker = require('./modules/serviceWorker');
-},{"./core":1,"./modules/dashboard":3,"./modules/handleClick":4,"./modules/profile":5,"./modules/serviceWorker":6,"./modules/socketController":7,"./sandbox":8}],3:[function(require,module,exports){
+var dashboard = require('./modules/subscribeButtons');
+var serviceWorker = require('./modules/webPushButton');
+},{"./core":1,"./modules/socketController":3,"./modules/subscribeButtons":4,"./modules/webPushButton":5,"./sandbox":6}],3:[function(require,module,exports){
+'use strict';
+var CORE = require('../core');
+
+CORE.create_module('sockets', function (sb) {
+   var socket;
+
+   var socketController = function () {
+
+       socket.on('connect', function () {
+           console.log('socket connected');
+           socket.emit('base-req', {});
+
+       });
+
+       socket.on('github-events', function (data) {
+           sb.notify({
+               type: 'github-events',
+               data: data
+           })
+       });
+
+       socket.on('github-organisations', function (data) {
+           sb.notify({
+               type: 'github-organisations',
+               data: data
+           })
+       });
+
+       socket.on('org-repos', function (data) {
+           console.log('org-repos', data);
+       });
+
+       socket.on('hook-created', function (data) {
+          console.log('hook-created', data)
+       });
+
+       socket.on('user-prefs', function (prefs) {
+           sb.notify({
+               type: 'prefs-subscriptions',
+               data: prefs.subscriptions
+           })
+       })
+
+   };
+
+   //todo could be DRYer
+   var pushSubscription = function (subscription) {
+       socket.emit('push-subscription', subscription);
+   };
+   
+   var deleteHook = function (data) {
+       socket.emit('delete-hook', data.org)
+   };
+
+   var createHook = function (hookUrl) {
+       socket.emit('create-hook', {url: hookUrl});
+   };
+
+    return {
+        init: function () {
+            socket = sb.socket();
+            socketController();
+            sb.listen({
+                'push-subscription': this.pushSubscription,
+                'delete-hook': this.deleteHook,
+                'create-hook': this.createHook
+            });
+
+
+        },
+        
+        destroy: function () {
+
+        },
+
+        pushSubscription: pushSubscription,
+        createHook: createHook,
+        deleteHook: deleteHook
+    }
+
+
+});
+},{"../core":1}],4:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
 
-CORE.create_module('dashboard', function (sb) {
+CORE.create_module('subscribeButtons', function (sb) {
 
     //todo pause state button
 
@@ -271,126 +352,12 @@ CORE.create_module('dashboard', function (sb) {
         },
     }
 });
-},{"../core":1}],4:[function(require,module,exports){
-'use strict';
-var CORE = require('../core');
-
-CORE.create_module('clickHandler', function (sb) {
-
-    var subscribeHook = function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var hookUrl = event.currentTarget.getAttribute('data-hook');
-        var org = event.currentTarget.getAttribute('data-org');
-
-        debugger;
-
-        sb.notify({
-            type: 'create-hook',
-            data: {
-                url: hookUrl,
-                org: org
-            }
-        });
-
-        sb.removeEvent(event.currentTarget, 'click', subscribeHook);
-    };
-
-
-    return {
-        init: function () {
-            sb.listen({
-                'org-buttons': this.orgButtons
-            });
-
-        },
-
-        destroy: function () {
-
-        },
-
-        orgButtons: function () {
-            var subButtons = $('button.subs');
-
-            for (var i = 0; i < subButtons.length; i += 1) {
-
-                sb.addEvent(subButtons[i], 'click', subscribeHook);
-            }
-
-        }
-    }
-});
 },{"../core":1}],5:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
 
-CORE.create_module('logout', function (sb) {
-    var loginButton;
-
-    function loggedIn(data) {
-        var template = $('#template-login')[0].content.children;
-        var shortname = template["0"].children["0"].childNodes[3];
-        var fullname = template["0"].childNodes[3].childNodes[1].children["0"].children["0"].children[1].children["0"];
-        var email = template["0"].childNodes[3].childNodes[1].children["0"].children["0"].children[1].children[1];
-        var profileButton = template["0"].childNodes[3].childNodes[1].children["0"].children["0"].children[1].children[2].children["0"];
-        var logoutButton = template["0"].children[1].children[2].children["0"].children["0"].children["0"].children["0"].children["0"];
-
-        //TODO where to get the full name?
-        shortname.textContent = data.nickname;
-        email.textContent = data.email;
-        profileButton.href = data.html_url;
-
-        $('#auth').html(template);
-        sb.addEvent(logoutButton, 'click', logOut);
-
-//grab template
-        // populate with data
-        // append to
-
-    }
-
-
-    function logOut(e) {
-        e.preventDefault();
-        //TODO logout?
-        $('#auth').html(loginButton);
-
-    }
-
-    return {
-        init: function () {
-            loginButton = $('#auth')[0];
-            sb.listen({
-                'logged-in': this.loggedIn,
-                'log-out': this.logOut
-            });
-        },
-
-        destroy: function () {
-
-            // change it back to the login button.
-
-        },
-
-        loggedIn: function (data) {
-            loggedIn(data);
-
-        },
-
-        logOut: function (event) {
-            logOut(event);
-        }
-    }
-
-});
-},{"../core":1}],6:[function(require,module,exports){
-'use strict';
-
-var CORE = require('../core');
-
-CORE.create_module('serviceWorker', function (sb) {
+CORE.create_module('webPushButton', function (sb) {
 
     const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
     // localhost: const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
@@ -538,90 +505,7 @@ CORE.create_module('serviceWorker', function (sb) {
     
 
 });
-},{"../core":1}],7:[function(require,module,exports){
-'use strict';
-var CORE = require('../core');
-
-CORE.create_module('sockets', function (sb) {
-   var socket;
-
-   var socketController = function () {
-
-       socket.on('connect', function () {
-           console.log('socket connected');
-           socket.emit('base-req', {});
-
-       });
-
-       socket.on('github-events', function (data) {
-           sb.notify({
-               type: 'github-events',
-               data: data
-           })
-       });
-
-       socket.on('github-organisations', function (data) {
-           sb.notify({
-               type: 'github-organisations',
-               data: data
-           })
-       });
-
-       socket.on('org-repos', function (data) {
-           console.log('org-repos', data);
-       });
-
-       socket.on('hook-created', function (data) {
-          console.log('hook-created', data)
-       });
-
-       socket.on('user-prefs', function (prefs) {
-           sb.notify({
-               type: 'prefs-subscriptions',
-               data: prefs.subscriptions
-           })
-       })
-
-   };
-
-   //todo could be DRYer
-   var pushSubscription = function (subscription) {
-       socket.emit('push-subscription', subscription);
-   };
-   
-   var deleteHook = function (data) {
-       socket.emit('delete-hook', data.org)
-   };
-
-   var createHook = function (hookUrl) {
-       socket.emit('create-hook', {url: hookUrl});
-   };
-
-    return {
-        init: function () {
-            socket = sb.socket();
-            socketController();
-            sb.listen({
-                'push-subscription': this.pushSubscription,
-                'delete-hook': this.deleteHook,
-                'create-hook': this.createHook
-            });
-
-
-        },
-        
-        destroy: function () {
-
-        },
-
-        pushSubscription: pushSubscription,
-        createHook: createHook,
-        deleteHook: deleteHook
-    }
-
-
-});
-},{"../core":1}],8:[function(require,module,exports){
+},{"../core":1}],6:[function(require,module,exports){
 'use strict';
 
 var Sandbox = {

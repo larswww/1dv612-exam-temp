@@ -24,11 +24,6 @@ router.get('/', ensureLoggedIn('/login'), function (req, res) {
         let context = {title: 'Express', env: env, user: req.user, git: userSettings[0], prefs: userSettings[1]};
         res.render('dashboard', context);
     });
-    // githubAPI.basicRequests(req.user.accessToken).then(git => {
-    //     db.handleLogin(req.user).then(prefs => { //todo could this code create a race condition?
-    //         socket.emit('user-prefs', prefs);
-    //     });
-    // });
 });
 
 router.get('/auth/github',
@@ -71,13 +66,7 @@ router.post('/webhook/payload/:id', function (req, res) {
             } else {
                 console.error('didnt find relevant user', req.params.id);
             }
-
         });
-
-        // db.findSubscribers(newNotice).then(subscribers => {
-        //     webPush.toSubscribers(subscribers, newNotice);
-        //     db.saveNotification(subscribers, newNotice);
-        // });
 
         /*
          if ( req.ip != '131.103.20.165' && req.ip != '131.103.20.166' ) {

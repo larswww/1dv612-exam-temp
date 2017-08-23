@@ -2,7 +2,7 @@
 
 var CORE = require('../core');
 
-CORE.create_module('dashboard', function (sb) {
+CORE.create_module('subscribeButtons', function (sb) {
 
     //todo pause state button
 
