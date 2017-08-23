@@ -3,8 +3,7 @@
 var CORE = require('../core');
 
 CORE.create_module('subscribeButtons', function (sb) {
-
-    //todo pause state button
+    let theButton;
 
     var subButtonInfo = function (event) {
 
@@ -18,6 +17,7 @@ CORE.create_module('subscribeButtons', function (sb) {
     };
 
     var subscribeHook = function (event) {
+        buttonState(false, event.currentTarget);
 
         sb.notify({
             type: 'create-hook',
@@ -30,6 +30,7 @@ CORE.create_module('subscribeButtons', function (sb) {
     };
 
     var unsubscribeHook = function (event) {
+        buttonState(false, event.currentTarget);
 
         sb.notify({
             type: 'delete-hook',
@@ -53,6 +54,18 @@ CORE.create_module('subscribeButtons', function (sb) {
 
     };
 
+    var buttonState = function (stateBool, button) {
+
+        if (stateBool) {
+            theButton.disabled = false;
+
+        } else {
+            theButton = button;
+            theButton.disabled = true;
+
+        }
+    };
+
     var subscribed = function (bool, target) {
 
         if (bool) {
@@ -68,7 +81,13 @@ CORE.create_module('subscribeButtons', function (sb) {
     return {
         init: function () {
             subscribeButtons();
+            sb.listen({
+                'button-state': buttonState //todo is it necessary to make it this.buttonState???
+
+            })
         },
+
+
 
         destroy: function () {
 

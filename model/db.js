@@ -93,6 +93,17 @@ function saveSubscription(subscription, profile) {
     })
 }
 
+function deleteSubscription(user) {
+
+    schema.user.findOneAndUpdate({
+        id: user.id,
+        username: profile.username
+    }, {subscription: false}, (err) => {
+        if (err) console.error(err);
+    })
+
+}
+
 function saveOrganizations(orgs, profile) {
 
     console.log(orgs);
@@ -275,3 +286,4 @@ exports.subscribe = subscribeTo;
 exports.unsubscribe = unsubscribeTo;
 exports.getUser = getUser;
 exports.getSavedPreferencesFor = getSavedPreferencesFor;
+exports.deleteSubscription = deleteSubscription;

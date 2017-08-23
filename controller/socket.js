@@ -15,6 +15,7 @@ function socketController(socket) {
         if (socket.request.user && socket.request.user.logged_in) {
             githubAPI.createHook(org, socket.request.user.id).then(hook => {
                 db.subscribe(hook, socket.request.user)
+                emit('button-state', true);
             });
         }
     });
@@ -24,14 +25,19 @@ function socketController(socket) {
        if (socket.request.user && socket.request.user.logged_in) {
            db.unsubscribe(org, socket.request.user).then(hookID => {
                githubAPI.deleteHook(hookID, org);
+               emit('button-state', true);
            })
        }
     });
 
     socket.on('push-subscription', subscription => {
-        db.saveSubscription(subscription, socket.request.user);
+        db.saveSubscription(subscription, socket.request.user); // todo then for sub button, figure out the resolve.
         let newNotice = createNotification.format(socket.request.user.id, "sub");
         webPush.toSubscriber(JSON.stringify(subscription), newNotice);
+    });
+
+    socket.on('push-unsubscribe', () => {
+        db.deleteSubscription(socket.request.user);
     });
 
 }

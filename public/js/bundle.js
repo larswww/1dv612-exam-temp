@@ -235,6 +235,17 @@ CORE.create_module('sockets', function (sb) {
            })
        })
 
+       socket.on('button-state', function (stateBool) {
+           sb.notify({
+               type: 'button-state',
+               data: stateBool
+           })
+       })
+
+   };
+
+   var unsubscribe = function () {
+       socket.emit('push-unsubscribe');
    };
 
    //todo could be DRYer
@@ -256,8 +267,9 @@ CORE.create_module('sockets', function (sb) {
             socketController();
             sb.listen({
                 'push-subscription': this.pushSubscription,
+                'push-unsubscribe': this.unsubscribe,
                 'delete-hook': this.deleteHook,
-                'create-hook': this.createHook
+                'create-hook': this.createHook,
             });
 
 
@@ -268,6 +280,7 @@ CORE.create_module('sockets', function (sb) {
         },
 
         pushSubscription: pushSubscription,
+        unsubscribe: pushSubscription,
         createHook: createHook,
         deleteHook: deleteHook
     }
@@ -280,8 +293,7 @@ CORE.create_module('sockets', function (sb) {
 var CORE = require('../core');
 
 CORE.create_module('subscribeButtons', function (sb) {
-
-    //todo pause state button
+    let theButton;
 
     var subButtonInfo = function (event) {
 
@@ -295,6 +307,7 @@ CORE.create_module('subscribeButtons', function (sb) {
     };
 
     var subscribeHook = function (event) {
+        buttonState(false, event.currentTarget);
 
         sb.notify({
             type: 'create-hook',
@@ -307,6 +320,7 @@ CORE.create_module('subscribeButtons', function (sb) {
     };
 
     var unsubscribeHook = function (event) {
+        buttonState(false, event.currentTarget);
 
         sb.notify({
             type: 'delete-hook',
@@ -330,6 +344,18 @@ CORE.create_module('subscribeButtons', function (sb) {
 
     };
 
+    var buttonState = function (stateBool, button) {
+
+        if (stateBool) {
+            theButton.disabled = false;
+
+        } else {
+            theButton = button;
+            theButton.disabled = true;
+
+        }
+    };
+
     var subscribed = function (bool, target) {
 
         if (bool) {
@@ -345,7 +371,13 @@ CORE.create_module('subscribeButtons', function (sb) {
     return {
         init: function () {
             subscribeButtons();
+            sb.listen({
+                'button-state': buttonState //todo is it necessary to make it this.buttonState???
+
+            })
         },
+
+
 
         destroy: function () {
 
@@ -447,6 +479,24 @@ CORE.create_module('webPushButton', function (sb) {
                 updateBtn();
             });
     }
+    
+    function unsubscribeUser() {
+        swRegistration.pushManager.getSubscription()
+            .then(subscription => {
+                if (subscription) return subscription.unsubscribe();
+            })
+            .catch(error => {
+                console.error('Error unsubscribing: ', error);
+            })
+            .then(() => {
+            updateSubscriptionOnServer(null);
+
+            console.log('User is unsubscribed');
+            isSubscribed = false;
+
+            updateBtn();
+            })
+    }
 
     function updateSubscriptionOnServer(subscription) {
 
@@ -464,6 +514,12 @@ CORE.create_module('webPushButton', function (sb) {
             subscriptionJson.textContent = JSON.stringify(subscription);
             subscriptionDetails.classList.remove('is-invisible');
         } else {
+
+            sb.notify({
+                type: 'push-unsubscribe',
+                data: false
+            });
+
             subscriptionDetails.classList.add('is-invisible');
         }
     }

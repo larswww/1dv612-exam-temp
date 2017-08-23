@@ -92,6 +92,24 @@ CORE.create_module('webPushButton', function (sb) {
                 updateBtn();
             });
     }
+    
+    function unsubscribeUser() {
+        swRegistration.pushManager.getSubscription()
+            .then(subscription => {
+                if (subscription) return subscription.unsubscribe();
+            })
+            .catch(error => {
+                console.error('Error unsubscribing: ', error);
+            })
+            .then(() => {
+            updateSubscriptionOnServer(null);
+
+            console.log('User is unsubscribed');
+            isSubscribed = false;
+
+            updateBtn();
+            })
+    }
 
     function updateSubscriptionOnServer(subscription) {
 
@@ -109,6 +127,12 @@ CORE.create_module('webPushButton', function (sb) {
             subscriptionJson.textContent = JSON.stringify(subscription);
             subscriptionDetails.classList.remove('is-invisible');
         } else {
+
+            sb.notify({
+                type: 'push-unsubscribe',
+                data: false
+            });
+
             subscriptionDetails.classList.add('is-invisible');
         }
     }

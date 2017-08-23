@@ -41,6 +41,17 @@ CORE.create_module('sockets', function (sb) {
            })
        })
 
+       socket.on('button-state', function (stateBool) {
+           sb.notify({
+               type: 'button-state',
+               data: stateBool
+           })
+       })
+
+   };
+
+   var unsubscribe = function () {
+       socket.emit('push-unsubscribe');
    };
 
    //todo could be DRYer
@@ -62,8 +73,9 @@ CORE.create_module('sockets', function (sb) {
             socketController();
             sb.listen({
                 'push-subscription': this.pushSubscription,
+                'push-unsubscribe': this.unsubscribe,
                 'delete-hook': this.deleteHook,
-                'create-hook': this.createHook
+                'create-hook': this.createHook,
             });
 
 
@@ -74,6 +86,7 @@ CORE.create_module('sockets', function (sb) {
         },
 
         pushSubscription: pushSubscription,
+        unsubscribe: pushSubscription,
         createHook: createHook,
         deleteHook: deleteHook
     }
