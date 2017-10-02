@@ -3,7 +3,7 @@
 var CORE = require('../core');
 
 CORE.create_module('subscribeButtons', function (sb) {
-    let theButton;
+    let theButton; //todo never undisables if clicking more than one button quickly.
 
     var subButtonInfo = function (event) {
 

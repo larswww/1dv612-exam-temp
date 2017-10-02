@@ -61,28 +61,23 @@ userSchema.post('save', doc => {
     sub.save();
 });
 
+userSchema.statics.lastLogin = (id) => {
+    this.findByIdAndUpdate(id, {$set: {'lastLogin': Date.now()}});
+};
+
 let user = mongoose.model('user', userSchema);
 
 
 
 let notificationSchema = new mongoose.Schema({
 
-    event: {
-        type: String,
-        required: true,
-    },
+    user: Schema.Types.ObjectId,
 
-    sender: {
-        type: String,
-    },
+    event: String,
 
-    organization: {
-        type: String,
-    },
+    forUser: String,
 
-    repository: {
-        type: String,
-    },
+    notification: Object,
 
     date: { type: Date, default: Date.now }
 

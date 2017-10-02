@@ -57,6 +57,7 @@ function handleLogin(profile) {
 
             if (matchingUser) {
                 getSavedPreferencesFor(matchingUser).then(prefs => {
+                    schema.user.update({user: matchingUser._id}, )
                     resolve(prefs);
                 }).catch(e => {
                     reject(e);
@@ -160,20 +161,19 @@ function findSubscribers(event) {
     });
 }
 
-function saveNotification(subscribers, notification) {
+function saveNotification(user, notification) {
 
-    if (notification.organization) {
+    // gets the user and the notification
+    notification.user = user._doc._id;
 
-        let newNotice = new schema.notification(notification);
+    let newNotice = new schema.notification(notification);
 
-        newNotice.save().then(doc => {
-            subscribers.forEach(sub => {
-                sub.doc.update({$push: {notifications: doc._id}})
-            })
-        }).catch(e => {
-            console.error(e);
-        })
-    }
+    newNotice.save().then(doc => {
+        console.log(doc);
+    }).catch(e => {
+        console.error(e);
+    })
+
 }
 
 function subscribeTo(hook, user) {
@@ -255,8 +255,12 @@ function getSubscriptionsFor(user) {
 function getNotificationsFor(user) {
 
     return new Promise((resolve, reject) => {
-        resolve(true);
 
+        schema.notification.find({user: user._id}).sort('date', '-1').then(noticeDocs => {
+            resolve(noticeDocs);
+        }).catch(e => {
+            reject(e);
+        });
     })
 }
 
