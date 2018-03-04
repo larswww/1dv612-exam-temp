@@ -1,50 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+<head>
+    <title>Hello, world!</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-{{>header}}
-
-<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-
-    {{>navTop}}
-
-
-    {{>navLeft}}
-
-</nav>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+</head>
 
 <body>
 
-<div id="wrapper">
+{{>nav}}
 
+<!--Sort the notifications by date?-->
+<!--Then render from that?-->
+<!--Next create a test page for rendering notifications-->
+<!--Take the settings page template and render that-->
+<!--Check that the database models and new views lineup-->
+<!--Put it together???-->
+<!--Create a stats model for incoming notifications and the charts. (review notes on the charts)-->
+<!--PROFIT-->
 
-    <div id="page-wrapper">
+{{{body}}}
 
-        <div class="row">
-            <div class="col-lg-12">
-                <h1 class="page-header">Dashboard</h1>
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 
-        <div class="row">
-            <div class="col-lg-8" id="page-here">
-
-
-                {{{body}}}
-
-                <!-- /.panel -->
-
-            </div>
-            <!-- /.col-lg-4 -->
-        </div>
-
-
-    </div>
-    <!-- /#page-wrapper -->
-
-</div>
-<!-- /#wrapper -->
+{{#if user}}
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/public/js/bundle.js"></script>
+{{/if}}
 
 {{>footer}}
+
 </body>
 </html>

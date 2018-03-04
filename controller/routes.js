@@ -1,7 +1,7 @@
 'use strict';
 const router = require('express').Router();
 const passport = require('passport');
-const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
+const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 const db = require('../model/db');
 const webPush = require('../model/webPush');
 const createNotification = require('../model/helpers/notification');
@@ -17,7 +17,6 @@ router.get('/login', function (req, res) {
     res.render('start');
 });
 
-//todo move callbacks to separate files.
 router.get('/', ensureLoggedIn('/login'), function (req, res) {
     githubAPI.createClient(req.user.accessToken);
     Promise.all([githubAPI.basicRequests(req.user.accessToken), db.handleLogin(req.user)]).then(userSettings => {
@@ -33,14 +32,6 @@ router.get('/auth/github',
 router.get('/auth/github/callback',
     passport.authenticate('github', {failureRedirect: '/login', successRedirect: '/'})
 );
-
-router.get('/auth/success',
-    ensureLoggedIn,
-    function (req, res) {
-        githubAPI.createClient(req.user.accessToken);
-        // db.handleLogin(req.user);
-        res.redirect('/');
-    });
 
 router.get('/logout', ensureLoggedIn, function (req, res) {
     req.logout();

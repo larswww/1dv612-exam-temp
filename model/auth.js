@@ -1,13 +1,12 @@
 'use strict';
 
 let passport = require('passport');
-let GithubStrategy = require('passport-github2');
 let dotenv = require('dotenv');
 
-function handleAuth (accessToken, refreshToken, profile, done) {
-    profile.accessToken = accessToken;
-    console.log(accessToken);
-    return done(null, profile);
+function handleAuth (accessToken, refreshToken, user, done) {
+    user.accessToken = accessToken;
+    user.user = user
+    done(null, user);
 };
 
 dotenv.load();

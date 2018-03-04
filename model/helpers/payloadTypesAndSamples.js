@@ -1,174 +1,6 @@
 'use strict';
 
-const events = {
 
-    commit_comment: {
-        desc: 'a commit comment is created',
-        example: commitCommentEvent
-    },
-
-    create: {
-        desc: 'a created repository, branch or tag',
-        example: createEvent
-    },
-
-    delete: {
-        desc: 'a deleted branch or tag',
-        example: deleteEvent
-    },
-
-    deployment: {
-        desc: 'deployment',
-        example: deploymentEvent
-    },
-
-    deployment_status: {
-        desc: 'deployment_status',
-        example: deploymentStatus
-    },
-
-    fork: {
-        desc: 'a user forks a repository',
-        example: fork
-    },
-
-    gollum: {
-        desc: 'a Wiki page is created or updated.',
-        example: gollum
-    },
-
-    installation: {
-        desc: 'GitHub App has been installer or uninstalled',
-        example: installation
-    },
-
-    installation_repositories: {
-        desc: 'a repository is added or removed from an installation',
-        example: installation_repositories
-    },
-
-    issue_comment: {
-        desc: 'an issue comment is created, edited or deleted.',
-        example: issue_comment
-    },
-
-    issues: {
-        desc: 'an issue is assigned, unassigned, labeled, unlabeled, opened, edited, milestoned, demilestoned, closed, or reopened.',
-        example: issue
-    },
-
-    label: {
-        desc: "a repository's label is created, edited or deleted",
-        example: label
-    },
-
-    marketplace_purchase: {
-        desc: 'a user purchases, cancel or changes their GitHub Marketplace plan.',
-        example: marketplace_purchase
-    },
-
-    member: {
-        desc: 'a user is added or removed as a collaborator to a repository, or has their permissions changed.',
-        example: member
-    },
-
-    membership: {
-        desc: 'a user is added or removed from a team',
-        example: membership
-    },
-
-    milestone: {
-        desc: 'a milestone is created, closed, opened, edited or deleted.',
-        example: milestone
-    },
-
-    organization: {
-        desc: 'a user is added, removed or invited to an Organization',
-        example: organization
-    },
-
-    org_block: {
-        desc: 'an organization blocks or unblocks a user.',
-        example: org_block
-    },
-
-    page_build: {
-        desc: 'attempted build of a GitHub Pages site, whether successful or not.',
-        example: page_build
-    },
-
-    project_card: {
-        desc: 'a project card is created, updated, moved, converted to an issue or deleted',
-        example: project_card
-    },
-
-    project_column: {
-        desc: 'a project column is created, updated, moved or deleted.',
-        example: project_column
-    },
-
-    project: {
-        desc: 'a projected is created, updated, closed, reopened or deleted.',
-        example: project
-    },
-
-    public: { // todo reserved word could cause issues?
-        desc: 'a privatre repository is open sourced.',
-        example: publicEvent
-    },
-
-    pull_request: {
-        desc: 'a pull request is assigned, unassigned, labeled, unlabeled, opened, edited, closed, reopened, or synchronized',
-        example: pull_request
-    },
-
-    pull_request_review: {
-        desc: 'a pull request review is submitted into a non-pending state, the body is edited, or the review is dismissed.',
-        example: pull_request_review
-    },
-
-    pull_request_review_comment: {
-        desc: "a comment on a pull request's unified diff is created, edited or deleted.",
-        example: pull_request_review_comment
-    },
-
-    push: {
-        desc: 'push to a repository branch.',
-        example: push
-    },
-
-    release: {
-        desc: 'a release is published.',
-        example: release
-    },
-
-    repository: {
-        desc: 'a repository is created, made public, deleted or made private',
-        example: repository
-    },
-
-    status: {
-        desc: 'the status of a Git commit changes.',
-        example: status
-    },
-
-    team: {
-        desc: "an organization's team is created or deleted",
-        example: team
-    },
-
-    team_add: {
-        desc: 'a repository is added to a team.',
-        example: team_add
-    },
-
-    watch: {
-        desc: 'a repository is starred.',
-        example: watch
-    },
-
-
-};
 
 let watch = {
     "action": "started",
@@ -5310,3 +5142,175 @@ let createEvent = {
         "site_admin": false
     }
 };
+
+const events = {
+
+    commit_comment: {
+        desc: 'a commit comment is created',
+        example: commitCommentEvent
+    },
+
+    create: {
+        desc: 'a created repository, branch or tag',
+        example: createEvent
+    },
+
+    delete: {
+        desc: 'a deleted branch or tag',
+        example: deleteEvent
+    },
+
+    deployment: {
+        desc: 'deployment',
+        example: deploymentEvent
+    },
+
+    deployment_status: {
+        desc: 'deployment_status',
+        example: deploymentStatus
+    },
+
+    fork: {
+        desc: 'a user forks a repository',
+        example: fork
+    },
+
+    gollum: {
+        desc: 'a Wiki page is created or updated.',
+        example: gollum
+    },
+
+    installation: {
+        desc: 'GitHub App has been installer or uninstalled',
+        example: installation
+    },
+
+    installation_repositories: {
+        desc: 'a repository is added or removed from an installation',
+        example: installation_repositories
+    },
+
+    issue_comment: {
+        desc: 'an issue comment is created, edited or deleted.',
+        example: issue_comment
+    },
+
+    issues: {
+        desc: 'an issue is assigned, unassigned, labeled, unlabeled, opened, edited, milestoned, demilestoned, closed, or reopened.',
+        example: issue
+    },
+
+    label: {
+        desc: "a repository's label is created, edited or deleted",
+        example: label
+    },
+
+    marketplace_purchase: {
+        desc: 'a user purchases, cancel or changes their GitHub Marketplace plan.',
+        example: marketplace_purchase
+    },
+
+    member: {
+        desc: 'a user is added or removed as a collaborator to a repository, or has their permissions changed.',
+        example: member
+    },
+
+    membership: {
+        desc: 'a user is added or removed from a team',
+        example: membership
+    },
+
+    milestone: {
+        desc: 'a milestone is created, closed, opened, edited or deleted.',
+        example: milestone
+    },
+
+    organization: {
+        desc: 'a user is added, removed or invited to an Organization',
+        example: organization
+    },
+
+    org_block: {
+        desc: 'an organization blocks or unblocks a user.',
+        example: org_block
+    },
+
+    page_build: {
+        desc: 'attempted build of a GitHub Pages site, whether successful or not.',
+        example: page_build
+    },
+
+    project_card: {
+        desc: 'a project card is created, updated, moved, converted to an issue or deleted',
+        example: project_card
+    },
+
+    project_column: {
+        desc: 'a project column is created, updated, moved or deleted.',
+        example: project_column
+    },
+
+    project: {
+        desc: 'a projected is created, updated, closed, reopened or deleted.',
+        example: project
+    },
+
+    public: { // todo reserved word could cause issues?
+        desc: 'a privatre repository is open sourced.',
+        example: publicEvent
+    },
+
+    pull_request: {
+        desc: 'a pull request is assigned, unassigned, labeled, unlabeled, opened, edited, closed, reopened, or synchronized',
+        example: pull_request
+    },
+
+    pull_request_review: {
+        desc: 'a pull request review is submitted into a non-pending state, the body is edited, or the review is dismissed.',
+        example: pull_request_review
+    },
+
+    pull_request_review_comment: {
+        desc: "a comment on a pull request's unified diff is created, edited or deleted.",
+        example: pull_request_review_comment
+    },
+
+    push: {
+        desc: 'push to a repository branch.',
+        example: push
+    },
+
+    release: {
+        desc: 'a release is published.',
+        example: release
+    },
+
+    repository: {
+        desc: 'a repository is created, made public, deleted or made private',
+        example: repository
+    },
+
+    status: {
+        desc: 'the status of a Git commit changes.',
+        example: status
+    },
+
+    team: {
+        desc: "an organization's team is created or deleted",
+        example: team
+    },
+
+    team_add: {
+        desc: 'a repository is added to a team.',
+        example: team_add
+    },
+
+    watch: {
+        desc: 'a repository is starred.',
+        example: watch
+    },
+
+
+};
+
+module.exports = events;

@@ -256,7 +256,7 @@ function getNotificationsFor(user) {
 
     return new Promise((resolve, reject) => {
 
-        schema.notification.find({user: user._id}).sort('date', '-1').then(noticeDocs => {
+        schema.notification.find({user: user._id}).sort('date').then(noticeDocs => {
             resolve(noticeDocs);
         }).catch(e => {
             reject(e);

@@ -1,4 +1,6 @@
 'use strict';
+const eventsAndPayloads = require('../model/helpers/payloadTypesAndSamples');
+
 
 module.exports = {
     helpers: {
@@ -23,7 +25,9 @@ module.exports = {
                 debugger;
             }
             return '';
-        }
+        },
+
+        events: eventsAndPayloads,
     },
 
     defaultLayout: 'main'

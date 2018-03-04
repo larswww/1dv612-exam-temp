@@ -1,6 +1,6 @@
 [link to live](https://chinese5k.com)
 
-github info och app info. Split it into two;
+Using redis as a session store run redis-server before launching or auth won't work.
 
 
 Github: via hbs and before
