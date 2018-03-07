@@ -1,11 +1,11 @@
 'use strict';
 //var ioc = require('socket.io-client');
-var Sandbox = require('./sandbox');
+var Sandbox = require('./facade');
 
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    var coreSocket = io();
+    // var coreSocket = io();
 
     return {
         debug: function (on) {
@@ -110,9 +110,9 @@ var CORE = (function () {
         },
 
         dom: {
-            socket: function () {
-                return coreSocket;
-            },
+            // socket: function () {
+            //     return coreSocket;
+            // },
 
             chart: function (type, settings) {
                 return new Morris[type](settings);

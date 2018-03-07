@@ -17,14 +17,6 @@ router.get('/login', function (req, res) {
     res.render('start');
 });
 
-router.get('/', ensureLoggedIn('/login'), function (req, res) {
-    githubAPI.createClient(req.user.accessToken);
-    Promise.all([githubAPI.basicRequests(req.user.accessToken), db.handleLogin(req.user)]).then(userSettings => {
-        let context = {title: 'Express', env: env, user: req.user, git: userSettings[0], prefs: userSettings[1]};
-        res.render('dashboard', context);
-    });
-});
-
 router.get('/auth/github',
     passport.authenticate('github', {scope: ['user', 'notifications', 'admin:repo_hook', 'admin:org_hook']})
 );
@@ -32,6 +24,33 @@ router.get('/auth/github',
 router.get('/auth/github/callback',
     passport.authenticate('github', {failureRedirect: '/login', successRedirect: '/'})
 );
+
+
+router.get('/', ensureLoggedIn('/login'), function (req, res) {
+    githubAPI.createClient(req.user.accessToken);
+    Promise.all([githubAPI.basicRequests(req.user.accessToken), db.handleLogin(req.user)]).then(userSettings => {
+        let context = {title: 'Express', env: env, user: req.user, git: userSettings[0], prefs: userSettings[1]};
+        res.render('notifications', context);
+    });
+});
+
+router.get('/api/notifications', ensureLoggedIn('/api/unauthorized'), function (req, res) {
+    res.send({message: 'some data!'})
+})
+
+router.get('/api/settings', ensureLoggedIn({sendHTTPCode: true}), function (req, res) {
+    res.render('settings')
+})
+
+router.get('/api/stats', ensureLoggedIn({sendHTTPCode: true}), function (req, res) {
+    res.render('stats')
+})
+
+router.get('/api/unauthorized', function (req, res) {
+    res.status(401)
+    res.send({error: true, message: 'must be logged in'})
+})
+
 
 router.get('/logout', ensureLoggedIn, function (req, res) {
     req.logout();

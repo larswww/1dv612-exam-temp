@@ -1,12 +1,12 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 //var ioc = require('socket.io-client');
-var Sandbox = require('./sandbox');
+var Sandbox = require('./facade');
 
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    var coreSocket = io();
+    // var coreSocket = io();
 
     return {
         debug: function (on) {
@@ -111,9 +111,9 @@ var CORE = (function () {
         },
 
         dom: {
-            socket: function () {
-                return coreSocket;
-            },
+            // socket: function () {
+            //     return coreSocket;
+            // },
 
             chart: function (type, settings) {
                 return new Morris[type](settings);
@@ -185,115 +185,144 @@ var CORE = (function () {
 
 module.exports = CORE;
 
-},{"./sandbox":6}],2:[function(require,module,exports){
+},{"./facade":2}],2:[function(require,module,exports){
+'use strict';
+
+var Sandbox = {
+    create: function (core, module_selector) {
+          var CONTAINER = core.dom.query('#' + module_selector);
+          return {
+
+              find: function (selector) {
+                  return CONTAINER.query(selector);
+                },
+
+              addEvent: function (element, evt, fn) {
+                  core.dom.bind(element, evt, fn);
+                },
+
+              removeEvent: function (element, evt, fn) {
+                  core.dom.unbind(element, evt, fn);
+                },
+
+              notify: function (evt) {
+                  if (core.is_obj(evt) && evt.type) {
+                    core.triggerEvent(evt);
+                  }
+                },
+
+              listen: function (evts) {
+                  if (core.is_obj(evts)) {
+                    core.registerEvents(evts, module_selector);
+                  }
+                },
+
+              ignore: function (evts) {
+                  if (core.is_arr(evts)) {
+                    core.removeEvents(evts, module_selector);
+                  }
+                },
+
+              create_element: function (el, config) {
+                  var i;
+                  var text;
+                  el = core.dom.create(el);
+                  if (config) {
+                    if (config.children && core.is_arr(config.children)) {
+                      i = 0;
+                      while (config.children[i]) {
+                        el.appendChild(config.children[i])
+                        ;
+                        i++;
+                      }
+
+                      delete config.children;
+                    } else if (config.text) {
+                      text = document.createTextNode(config.text);
+                      delete config.text;
+                      el.appendChild(text);
+                    }
+
+                    core.dom.apply_attrs(el, config);
+                  }
+
+                  return el;
+                },
+
+              socket: function () {
+                  return core.dom.socket();
+                },
+
+              lock: function () {
+                  return core.dom.lock();
+              },
+
+              chart: function () {
+
+              },
+
+              template: {
+
+                  panel: function () {
+                      return $('#template-panel')
+                  }
+              },
+
+            };
+        },
+  };
+
+module.exports = Sandbox;
+
+},{}],3:[function(require,module,exports){
 var core = require('./core');
-var Sandbox = require('./sandbox');
-var socketModule = require('./modules/socketController');
+var Sandbox = require('./facade');
+// var socketModule = require('./modules/socketController');
 var dashboard = require('./modules/subscribeButtons');
+var restModule = require('./modules/REST')
 var serviceWorker = require('./modules/webPushButton');
-},{"./core":1,"./modules/socketController":3,"./modules/subscribeButtons":4,"./modules/webPushButton":5,"./sandbox":6}],3:[function(require,module,exports){
+},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/subscribeButtons":5,"./modules/webPushButton":6}],4:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
-CORE.create_module('sockets', function (sb) {
-   var socket;
+CORE.create_module('REST', function (sb) {
 
-   var socketController = function () {
+    var requestAll = function() {
+        ajaxRequest({endpoint: 'settings', notify: 'settings'})
+        ajaxRequest({endpoint: 'notifications', notify: 'notifications'})
+        ajaxRequest({endpoint: 'stats', notify: 'stats'})
+    }
 
-       socket.on('connect', function () {
-           console.log('socket connected');
-           socket.emit('base-req', {});
-
-       });
-
-       socket.on('github-events', function (data) {
-           sb.notify({
-               type: 'github-events',
-               data: data
-           })
-       });
-
-       socket.on('github-organisations', function (data) {
-           sb.notify({
-               type: 'github-organisations',
-               data: data
-           })
-       });
-
-       socket.on('org-repos', function (data) {
-           console.log('org-repos', data);
-       });
-
-       socket.on('hook-created', function (data) {
-          console.log('hook-created', data)
-       });
-
-       socket.on('user-prefs', function (prefs) {
-           sb.notify({
-               type: 'prefs-subscriptions',
-               data: prefs.subscriptions
-           })
-       })
-
-       socket.on('button-state', function (stateBool) {
-           sb.notify({
-               type: 'button-state',
-               data: stateBool
-           })
-       })
-
-   };
-
-   var unsubscribe = function () {
-       socket.emit('push-unsubscribe');
-   };
-
-   //todo could be DRYer
-   var pushSubscription = function (subscription) {
-       socket.emit('push-subscription', subscription);
-   };
-   
-   var deleteHook = function (data) {
-       socket.emit('delete-hook', data.org)
-   };
-
-   var createHook = function (hookUrl) {
-       socket.emit('create-hook', {url: hookUrl});
-   };
+    var ajaxRequest = function (event) {
+        $.get('http://localhost:3000/api/' + event.endpoint, function (data) {
+            sb.notify(event.notify, data)
+        })
+    }
 
     return {
         init: function () {
-            socket = sb.socket();
-            socketController();
+            requestAll();
             sb.listen({
-                'push-subscription': this.pushSubscription,
-                'push-unsubscribe': this.unsubscribe,
-                'delete-hook': this.deleteHook,
-                'create-hook': this.createHook,
+                'ajax-request': this.ajaxRequest,
             });
 
 
         },
-        
+
         destroy: function () {
 
         },
 
-        pushSubscription: pushSubscription,
-        unsubscribe: pushSubscription,
-        createHook: createHook,
-        deleteHook: deleteHook
+        ajaxRequest: ajaxRequest,
     }
-
-
 });
-},{"../core":1}],4:[function(require,module,exports){
+},{"../core":1}],5:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
 
 CORE.create_module('subscribeButtons', function (sb) {
-    let theButton;
+    let theButton; //todo never undisables if clicking more than one button quickly.
 
     var subButtonInfo = function (event) {
 
@@ -384,7 +413,7 @@ CORE.create_module('subscribeButtons', function (sb) {
         },
     }
 });
-},{"../core":1}],5:[function(require,module,exports){
+},{"../core":1}],6:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
@@ -561,93 +590,4 @@ CORE.create_module('webPushButton', function (sb) {
     
 
 });
-},{"../core":1}],6:[function(require,module,exports){
-'use strict';
-
-var Sandbox = {
-    create: function (core, module_selector) {
-          var CONTAINER = core.dom.query('#' + module_selector);
-          return {
-
-              find: function (selector) {
-                  return CONTAINER.query(selector);
-                },
-
-              addEvent: function (element, evt, fn) {
-                  core.dom.bind(element, evt, fn);
-                },
-
-              removeEvent: function (element, evt, fn) {
-                  core.dom.unbind(element, evt, fn);
-                },
-
-              notify: function (evt) {
-                  if (core.is_obj(evt) && evt.type) {
-                    core.triggerEvent(evt);
-                  }
-                },
-
-              listen: function (evts) {
-                  if (core.is_obj(evts)) {
-                    core.registerEvents(evts, module_selector);
-                  }
-                },
-
-              ignore: function (evts) {
-                  if (core.is_arr(evts)) {
-                    core.removeEvents(evts, module_selector);
-                  }
-                },
-
-              create_element: function (el, config) {
-                  var i;
-                  var text;
-                  el = core.dom.create(el);
-                  if (config) {
-                    if (config.children && core.is_arr(config.children)) {
-                      i = 0;
-                      while (config.children[i]) {
-                        el.appendChild(config.children[i])
-                        ;
-                        i++;
-                      }
-
-                      delete config.children;
-                    } else if (config.text) {
-                      text = document.createTextNode(config.text);
-                      delete config.text;
-                      el.appendChild(text);
-                    }
-
-                    core.dom.apply_attrs(el, config);
-                  }
-
-                  return el;
-                },
-
-              socket: function () {
-                  return core.dom.socket();
-                },
-
-              lock: function () {
-                  return core.dom.lock();
-              },
-
-              chart: function () {
-
-              },
-
-              template: {
-
-                  panel: function () {
-                      return $('#template-panel')
-                  }
-              },
-
-            };
-        },
-  };
-
-module.exports = Sandbox;
-
-},{}]},{},[2]);
+},{"../core":1}]},{},[3]);
