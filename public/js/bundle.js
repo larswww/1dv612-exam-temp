@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict';
 //var ioc = require('socket.io-client');
 var Sandbox = require('./facade');
@@ -111,9 +111,13 @@ var CORE = (function () {
         },
 
         dom: {
-            // socket: function () {
-            //     return coreSocket;
-            // },
+            append_element: function (selector, elementString) {
+                jQuery(selector).append(elementString)
+            },
+
+            remove: function (selector) {
+                jQuery(selector).remove()
+            },
 
             chart: function (type, settings) {
                 return new Morris[type](settings);
@@ -169,7 +173,9 @@ var CORE = (function () {
 
             apply_attrs: function (el, attrs) {
                 jQuery(el).attr(attrs);
-            }
+            },
+
+
         },
 
         is_arr: function (arr) {
@@ -190,87 +196,97 @@ module.exports = CORE;
 
 var Sandbox = {
     create: function (core, module_selector) {
-          var CONTAINER = core.dom.query('#' + module_selector);
-          return {
+        var CONTAINER = core.dom.query('#' + module_selector);
+        return {
 
-              find: function (selector) {
-                  return CONTAINER.query(selector);
-                },
+            find: function (selector) {
+                return CONTAINER.query(selector);
+            },
 
-              addEvent: function (element, evt, fn) {
-                  core.dom.bind(element, evt, fn);
-                },
+            addEvent: function (element, evt, fn) {
+                core.dom.bind(element, evt, fn);
+            },
 
-              removeEvent: function (element, evt, fn) {
-                  core.dom.unbind(element, evt, fn);
-                },
+            removeEvent: function (element, evt, fn) {
+                core.dom.unbind(element, evt, fn);
+            },
 
-              notify: function (evt) {
-                  if (core.is_obj(evt) && evt.type) {
+            notify: function (evt) {
+                if (core.is_obj(evt) && evt.type) {
                     core.triggerEvent(evt);
-                  }
-                },
+                }
+            },
 
-              listen: function (evts) {
-                  if (core.is_obj(evts)) {
+            listen: function (evts) {
+                if (core.is_obj(evts)) {
                     core.registerEvents(evts, module_selector);
-                  }
-                },
+                }
+            },
 
-              ignore: function (evts) {
-                  if (core.is_arr(evts)) {
+            ignore: function (evts) {
+                if (core.is_arr(evts)) {
                     core.removeEvents(evts, module_selector);
-                  }
-                },
+                }
+            },
 
-              create_element: function (el, config) {
-                  var i;
-                  var text;
-                  el = core.dom.create(el);
-                  if (config) {
+            append_elements: function (selector, array) {
+                var elements = array.join('\n')
+                core.dom.append_element(selector, elements)
+
+            },
+
+            remove_element: function (selector) {
+              core.dom.remove(selector)
+            },
+
+            create_element: function (el, config) {
+                var i;
+                var text;
+                el = core.dom.create(el);
+                if (config) {
                     if (config.children && core.is_arr(config.children)) {
-                      i = 0;
-                      while (config.children[i]) {
-                        el.appendChild(config.children[i])
-                        ;
-                        i++;
-                      }
+                        i = 0;
+                        while (config.children[i]) {
+                            el.appendChild(config.children[i])
+                            ;
+                            i++;
+                        }
 
-                      delete config.children;
+                        delete config.children;
                     } else if (config.text) {
-                      text = document.createTextNode(config.text);
-                      delete config.text;
-                      el.appendChild(text);
+                        text = document.createTextNode(config.text);
+                        delete config.text;
+                        el.appendChild(text);
                     }
 
                     core.dom.apply_attrs(el, config);
-                  }
+                }
 
-                  return el;
-                },
+                return el;
+            },
 
-              socket: function () {
-                  return core.dom.socket();
-                },
+            socket: function () {
+                return core.dom.socket();
+            },
 
-              lock: function () {
-                  return core.dom.lock();
-              },
+            lock: function () {
+                return core.dom.lock();
+            },
 
-              chart: function () {
+            chart: function () {
 
-              },
+            },
 
-              template: {
+            template: {
 
-                  panel: function () {
-                      return $('#template-panel')
-                  }
-              },
+                panel: function () {
+                    return $('#template-panel')
+                }
+            },
 
-            };
-        },
-  };
+        };
+    },
+};
 
 module.exports = Sandbox;
 
@@ -279,23 +295,29 @@ var core = require('./core');
 var Sandbox = require('./facade');
 // var socketModule = require('./modules/socketController');
 var dashboard = require('./modules/subscribeButtons');
-var restModule = require('./modules/REST')
-var serviceWorker = require('./modules/webPushButton');
-},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/subscribeButtons":5,"./modules/webPushButton":6}],4:[function(require,module,exports){
+var REST = require('./modules/REST')
+var notifications = require('./modules/notifications')
+var stats = require('./modules/stats')
+var settings = require('./modules/settings')
+var loading = require('./modules/loading')
+//var serviceWorker = require('./modules/webPushButton')
+},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/loading":5,"./modules/notifications":6,"./modules/settings":7,"./modules/stats":8,"./modules/subscribeButtons":9}],4:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
 CORE.create_module('REST', function (sb) {
+    var loadAtStartup = ['settings', 'notifications', 'stats']
 
     var requestAll = function() {
-        ajaxRequest({endpoint: 'settings', notify: 'settings'})
-        ajaxRequest({endpoint: 'notifications', notify: 'notifications'})
-        ajaxRequest({endpoint: 'stats', notify: 'stats'})
+        for (var item of loadAtStartup) {
+            sb.notify({type: 'start-loading', data: {selector: `#${item}`, target: 'h3'}})
+            ajaxRequest(item)
+        }
     }
 
     var ajaxRequest = function (event) {
-        $.get('http://localhost:3000/api/' + event.endpoint, function (data) {
-            sb.notify(event.notify, data)
+        $.get('http://localhost:3000/api/' + event, function (data) {
+            sb.notify({type: event, data: data.data}) //ffs
         })
     }
 
@@ -317,6 +339,139 @@ CORE.create_module('REST', function (sb) {
     }
 });
 },{"../core":1}],5:[function(require,module,exports){
+'use strict'
+
+var CORE = require('../core');
+
+CORE.create_module('loading', function (sb) {
+
+    var start = function (event) {
+        var loaderIcon = `<i class="fas fa-spinner fa-spin" id='${event.selector}Loading'style="font-size:24px"></i>`
+        sb.append_elements(`${event.selector} > ${event.target}`, [loaderIcon])
+    }
+
+    var stop = function (selector) {
+        sb.remove_element(`${selector}Loading`)
+    }
+
+    return {
+        init: function () {
+            sb.listen({
+                'start-loading': start
+
+            })
+            sb.listen({
+                'stop-loading': stop
+            })
+        },
+
+        destroy: function () {
+
+        },
+    }
+})
+},{"../core":1}],6:[function(require,module,exports){
+'use strict';
+var CORE = require('../core')
+
+CORE.create_module('notifications', function (sb) {
+    var selector = '#notifications'
+
+    var recievedSettings = function (data) {
+        console.log('recieved notifications ', data)
+    }
+
+    return {
+        init: function () {
+            sb.notify({type: 'start-loading', data: {selector: selector, target: 'h3'}})
+            sb.listen({
+                'notifications': recievedSettings //todo is it necessary to make it this.buttonState???
+
+            })
+        },
+
+
+
+        destroy: function () {
+
+        },
+    }
+})
+},{"../core":1}],7:[function(require,module,exports){
+'use strict';
+
+var CORE = require('../core');
+
+CORE.create_module('settings', function (sb) {
+    var selector = '#settings'
+
+    var recievedSettings = function (data) {
+        console.log('recieved settings ', data)
+    }
+
+    return {
+        init: function () {
+            sb.notify({type: 'start-loading', data: {selector: selector, target: 'h3'}})
+            sb.listen({
+                'settings': recievedSettings //todo is it necessary to make it this.buttonState???
+
+            })
+        },
+
+
+
+        destroy: function () {
+
+        },
+    }
+})
+},{"../core":1}],8:[function(require,module,exports){
+'use strict';
+
+var CORE = require('../core')
+
+CORE.create_module('stats', function (sb) {
+    var selector = '#stats'
+
+    var recievedSettings = function (data) {
+        console.log('recieved stats ', data)
+        updateStats(data)
+        sb.notify({type: 'stop-load', data: selector})
+    }
+
+    var updateStats = function (data) {
+        if (data['orgs'].length) createGithubStatsListItem({name: 'Organizations', length: data['orgs'].length})
+        if (data['issues'].length) createGithubStatsListItem({name: 'Issues', length: data['issues'].length})
+        if (data['teams'].length) createGithubStatsListItem({name: 'Teams', length: data['teams'].length})
+        if (data['repos'].length) createGithubStatsListItem({name: 'Repositories', length: data['repos'].length})
+    }
+
+    var createGithubStatsListItem = function (item) {
+        let html = [`<li class="list-group-item d-flex justify-content-between align-items-center">`,
+            `${item.name}`,
+            `<span class="badge badge-primary badge-pill">${item.length}</span>`,
+            `</li>`]
+
+        sb.append_elements(`${selector} > ul`, html)
+    }
+
+    //test
+
+    return {
+        init: function () {
+            sb.listen({
+                'stats': recievedSettings // todo is it necessary to make it this.buttonState ?
+
+            })
+        },
+
+
+        destroy: function () {
+
+        },
+    }
+})
+},{"../core":1}],9:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
@@ -412,182 +567,5 @@ CORE.create_module('subscribeButtons', function (sb) {
 
         },
     }
-});
-},{"../core":1}],6:[function(require,module,exports){
-'use strict';
-
-var CORE = require('../core');
-
-CORE.create_module('webPushButton', function (sb) {
-
-    const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
-    // localhost: const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
-
-    const pushButton = document.querySelector('.js-push-btn');
-
-    let isSubscribed = false;
-    let swRegistration = null;
-
-    function urlB64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding)
-            .replace(/\-/g, '+')
-            .replace(/_/g, '/');
-
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
-    }
-
-    function updateBtn() {
-
-        if (Notification.permission === 'denied') {
-            pushButton.textContent = 'Push Messaging Blocked.';
-            pushButton.disabled = true;
-            updateSubscriptionOnServer(null);
-            return;
-        }
-
-        if (isSubscribed) {
-            pushButton.textContent = 'Disable Push Messaging';
-        } else {
-            pushButton.textContent = 'Enable Push Messaging';
-        }
-
-        pushButton.disabled = false;
-    }
-
-    function initialiseUI() {
-        pushButton.addEventListener('click', function() {
-            pushButton.disabled = true;
-            if (isSubscribed) {
-                // TODO: Unsubscribe user
-            } else {
-                subscribeUser();
-            }
-        });
-
-        // Set the initial subscription value
-        swRegistration.pushManager.getSubscription()
-            .then(function(subscription) {
-                isSubscribed = !(subscription === null);
-
-                updateSubscriptionOnServer(subscription);
-
-                if (isSubscribed) {
-                    console.log('User IS subscribed.');
-                } else {
-                    console.log('User is NOT subscribed.');
-                }
-
-                updateBtn();
-            });
-    }
-
-    function subscribeUser() {
-        const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
-        swRegistration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: applicationServerKey
-        })
-            .then(function(subscription) {
-                console.log('User is subscribed');
-
-                updateSubscriptionOnServer(subscription);
-
-                isSubscribed = true;
-
-                updateBtn();
-            })
-            .catch(function(err) {
-                console.log('Failed to subscribe the user: ', err);
-                updateBtn();
-            });
-    }
-    
-    function unsubscribeUser() {
-        swRegistration.pushManager.getSubscription()
-            .then(subscription => {
-                if (subscription) return subscription.unsubscribe();
-            })
-            .catch(error => {
-                console.error('Error unsubscribing: ', error);
-            })
-            .then(() => {
-            updateSubscriptionOnServer(null);
-
-            console.log('User is unsubscribed');
-            isSubscribed = false;
-
-            updateBtn();
-            })
-    }
-
-    function updateSubscriptionOnServer(subscription) {
-
-        const subscriptionJson = document.querySelector('.js-subscription-json');
-        const subscriptionDetails =
-            document.querySelector('.js-subscription-details');
-
-        if (subscription) {
-
-            sb.notify({
-                type: 'push-subscription',
-                data: subscription
-            });
-
-            subscriptionJson.textContent = JSON.stringify(subscription);
-            subscriptionDetails.classList.remove('is-invisible');
-        } else {
-
-            sb.notify({
-                type: 'push-unsubscribe',
-                data: false
-            });
-
-            subscriptionDetails.classList.add('is-invisible');
-        }
-    }
-
-
-    var startWorker = function () {
-
-        if ('serviceWorker' in navigator && 'PushManager' in window) {
-            console.log('Service Worker and Push is supported');
-
-            navigator.serviceWorker.register('/public/js/sw.js')
-                .then(function(swReg) {
-                    console.log('Service Worker is registered', swReg);
-
-                    swRegistration = swReg;
-                    initialiseUI();
-                })
-                .catch(function(error) {
-                    console.error('Service Worker Error', error);
-                });
-        } else {
-            console.warn('Push messaging is not supported');
-            pushButton.textContent = 'Push Not Supported';
-        }
-        
-    };
-    
-    
-    return {
-        init: function () {
-            startWorker();
-        },
-        
-        destroy: function () {
-            
-        }
-    }
-
-    
-
 });
 },{"../core":1}]},{},[3]);

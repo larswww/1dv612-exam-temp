@@ -9,6 +9,8 @@ const githubAPI = require('../model/githubAPI');
 const socket = require('./socket');
 const paramValidationHelper = require('./helpers/validateUserIDparam');
 
+
+
 let env = {
     VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY
 };
@@ -35,15 +37,25 @@ router.get('/', ensureLoggedIn('/login'), function (req, res) {
 });
 
 router.get('/api/notifications', ensureLoggedIn('/api/unauthorized'), function (req, res) {
-    res.send({message: 'some data!'})
+    let sample = require('../test/data/handleLoginSample')
+    // db.handleLogin(req.user).then((data) => {
+        res.send({message: 'some notifications!', data: JSON.parse(sample)})
+
+    // })
 })
 
-router.get('/api/settings', ensureLoggedIn({sendHTTPCode: true}), function (req, res) {
-    res.render('settings')
+router.get('/api/settings', ensureLoggedIn('/api/unauthorized'), function (req, res) {
+    let sample = require('../test/data/githubAPIbasicRequestsSample')
+    // githubAPI.createClient(req.user.accessToken);
+    // githubAPI.basicRequests(req.user.accessToken).then((git) => {
+        res.send({message: 'some settings', data: JSON.parse(sample)})
+    // })
 })
 
-router.get('/api/stats', ensureLoggedIn({sendHTTPCode: true}), function (req, res) {
-    res.render('stats')
+router.get('/api/stats', ensureLoggedIn('/api/unauthorized'), function (req, res) {
+    let sample = require('../test/data/githubAPIbasicRequestsSample')
+    res.send({message: 'some stats!', data: JSON.parse(sample)})
+
 })
 
 router.get('/api/unauthorized', function (req, res) {

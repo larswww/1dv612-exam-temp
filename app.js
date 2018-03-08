@@ -81,6 +81,13 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+
 
 dotenv.load();
 
@@ -110,35 +117,32 @@ passport.deserializeUser(function(user, done) {
 
 app.use('/', require('./controller/routes.js'));
 
-// Fånga och ge error till handler
-// app.use(function (req, res, next) {
-//     let err = new Error('Not Found');
-//     err.status = 404;
-//     next(err);
-// });
-//
-// // Error handler för dev, skriver ut stacktrace
-// if (app.get('env') === 'development') {
-//     app.use(function (err, req, res, next) {
-//         res.status(err.status || 500);
-//         res.render('error', {
-//             message: err.message,
-//             error: err,
-//         });
-//     });
-//     process.on('unhandledRejection', r => console.error(JSON.stringify(r)));
-//
-// } else {
-//     // Production error handler utan stacktrace
-//     app.use(function (err, req, res, next) {
-//         res.status(err.status || 500);
-//         res.render('error', {
-//             message: err.message,
-//             error: {},
-//         });
-//     });
-// }
+app.use(function (req, res, next) {
+    let err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
 
+if (app.get('env') === 'development') {
+    app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err,
+        });
+    });
+    process.on('unhandledRejection', r => console.error(JSON.stringify(r)));
+
+} else {
+    // Production error handler utan stacktrace
+    app.use(function (err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: {},
+        });
+    });
+}
 
 
 if (require.main === module) {

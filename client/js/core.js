@@ -110,9 +110,13 @@ var CORE = (function () {
         },
 
         dom: {
-            // socket: function () {
-            //     return coreSocket;
-            // },
+            append_element: function (selector, elementString) {
+                jQuery(selector).append(elementString)
+            },
+
+            remove: function (selector) {
+                jQuery(selector).remove()
+            },
 
             chart: function (type, settings) {
                 return new Morris[type](settings);
@@ -168,7 +172,9 @@ var CORE = (function () {
 
             apply_attrs: function (el, attrs) {
                 jQuery(el).attr(attrs);
-            }
+            },
+
+
         },
 
         is_arr: function (arr) {
