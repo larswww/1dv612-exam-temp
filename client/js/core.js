@@ -101,6 +101,10 @@ var CORE = (function () {
             }
         },
 
+        moment: function (time) {
+          return moment().fromNow(time)
+        },
+
         log: function (severity, message) {
             if (debug) {
                 console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](message);

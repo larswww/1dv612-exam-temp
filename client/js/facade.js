@@ -83,6 +83,11 @@ var Sandbox = {
 
             },
 
+            timeSince: function (time) {
+                return core.moment(time)
+
+            },
+
             template: {
 
                 panel: function () {

@@ -1,5 +1,5 @@
 'use strict';
-const eventsAndPayloads = require('../model/helpers/payloadTypesAndSamples');
+const eventsAndPayloads = require('../test/data/payloadTypesAndSamples');
 
 
 module.exports = {

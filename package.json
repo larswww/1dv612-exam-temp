@@ -41,6 +41,7 @@
     "express-session": "^1.15.2",
     "github-api": "^3.0.0",
     "lodash": "^4.17.4",
+    "moment": "^2.21.0",
     "mongoose": "^4.11.6",
     "mongoose-findorcreate": "^2.0.0",
     "morgan": "^1.8.2",

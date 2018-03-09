@@ -9,8 +9,8 @@ CORE.create_module('loading', function (sb) {
         sb.append_elements(`${event.selector} > ${event.target}`, [loaderIcon])
     }
 
-    var stop = function (selector) {
-        sb.remove_element(`${selector}Loading`)
+    var stop = function (event) {
+        sb.remove_element(`${event.selector}Loading`)
     }
 
     return {

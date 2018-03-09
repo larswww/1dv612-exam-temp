@@ -9,8 +9,6 @@ const githubAPI = require('../model/githubAPI');
 const socket = require('./socket');
 const paramValidationHelper = require('./helpers/validateUserIDparam');
 
-
-
 let env = {
     VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY
 };
@@ -27,7 +25,6 @@ router.get('/auth/github/callback',
     passport.authenticate('github', {failureRedirect: '/login', successRedirect: '/'})
 );
 
-
 router.get('/', ensureLoggedIn('/login'), function (req, res) {
     githubAPI.createClient(req.user.accessToken);
     Promise.all([githubAPI.basicRequests(req.user.accessToken), db.handleLogin(req.user)]).then(userSettings => {
@@ -38,8 +35,16 @@ router.get('/', ensureLoggedIn('/login'), function (req, res) {
 
 router.get('/api/notifications', ensureLoggedIn('/api/unauthorized'), function (req, res) {
     let sample = require('../test/data/handleLoginSample')
+    let payloads = require ('../test/data/payloadTypesAndSamples')
+    let plh = require('../model/helpers/payloadHandler')
+
+    let results = []
+    for (let key in payloads) {
+        results.push(plh(key, payloads[key].example))
+    }
+
     // db.handleLogin(req.user).then((data) => {
-        res.send({message: 'some notifications!', data: JSON.parse(sample)})
+        res.send({message: 'some notifications!', data: results})
 
     // })
 })

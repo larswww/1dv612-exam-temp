@@ -33,6 +33,20 @@ it('should return a correctly formated notification', () => {
 
 });
 
+it('should handle all example payloads', () => {
+    const payloads = require('./data/payloadTypesAndSamples')
+    const plh = require('../model/helpers/payloadHandler')
+
+    let results = []
+
+
+    for (let key in payloads) {
+        results.push(plh(key, payloads[key].example))
+    }
+
+})
+
+
 it('Should format the events array correctly', () => {
    let formatter = require('../model/helpers/subscribedEventsFormatter');
    let severalEvents = formatter(['push', 'commit', 'pull', 'ping']);

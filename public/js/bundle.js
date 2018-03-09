@@ -1,4 +1,4 @@
-(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 //var ioc = require('socket.io-client');
 var Sandbox = require('./facade');
@@ -100,6 +100,10 @@ var CORE = (function () {
                     delete mod.events[evt];
                 }
             }
+        },
+
+        moment: function (time) {
+          return moment().fromNow(time)
         },
 
         log: function (severity, message) {
@@ -277,6 +281,11 @@ var Sandbox = {
 
             },
 
+            timeSince: function (time) {
+                return core.moment(time)
+
+            },
+
             template: {
 
                 panel: function () {
@@ -295,11 +304,11 @@ var core = require('./core');
 var Sandbox = require('./facade');
 // var socketModule = require('./modules/socketController');
 var dashboard = require('./modules/subscribeButtons');
+var loading = require('./modules/loading')
 var REST = require('./modules/REST')
 var notifications = require('./modules/notifications')
 var stats = require('./modules/stats')
 var settings = require('./modules/settings')
-var loading = require('./modules/loading')
 //var serviceWorker = require('./modules/webPushButton')
 },{"./core":1,"./facade":2,"./modules/REST":4,"./modules/loading":5,"./modules/notifications":6,"./modules/settings":7,"./modules/stats":8,"./modules/subscribeButtons":9}],4:[function(require,module,exports){
 'use strict';
@@ -350,8 +359,8 @@ CORE.create_module('loading', function (sb) {
         sb.append_elements(`${event.selector} > ${event.target}`, [loaderIcon])
     }
 
-    var stop = function (selector) {
-        sb.remove_element(`${selector}Loading`)
+    var stop = function (event) {
+        sb.remove_element(`${event.selector}Loading`)
     }
 
     return {
@@ -377,20 +386,43 @@ var CORE = require('../core')
 CORE.create_module('notifications', function (sb) {
     var selector = '#notifications'
 
-    var recievedSettings = function (data) {
-        console.log('recieved notifications ', data)
+    var receivedNotifications = function (data) {
+        for (let item of data) {
+            try {
+                addNotification(item)
+            } catch (e) {
+                console.error('receivedNotifications: invalid notification,', item)
+            }
+        }
+
+        sb.notify({type: 'stop-loading', data: {selector: selector, target: 'h3'}})
+    }
+
+
+    var addNotification = function (item) {
+        let html = ['<div class="card ">',
+            '<div class="card-body">',
+            `<h5 class="card-title">${item.title}</h5>`,
+            `<small class="text-muted">${sb.timeSince(item.date)}</small>`,
+            `<div class="clearfix">`,
+            `<img src="${item.icon}" class="rounded float-left w-25" alt="...">`,
+            `<p class="card-text float-right">${item.body.trim()}</p>`,
+            `</div>`,
+            `<a href="${item.url}" class="card-link">...${item.url.slice(-40)}</a>`,
+            '</div>',
+            '</div>']
+
+        sb.append_elements(`${selector}`, html)
     }
 
     return {
         init: function () {
             sb.notify({type: 'start-loading', data: {selector: selector, target: 'h3'}})
             sb.listen({
-                'notifications': recievedSettings //todo is it necessary to make it this.buttonState???
+                'notifications': receivedNotifications //todo is it necessary to make it this.buttonState???
 
             })
         },
-
-
 
         destroy: function () {
 
