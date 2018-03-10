@@ -29,6 +29,10 @@ router.get('/dashboard.html', ensureLoggedIn('/login'), function (req, res) {
     res.sendFile('dashboard.html')
 });
 
+router.get('/', ensureLoggedIn('/login'), function (req, res) {
+    res.sendFile('dashboard.html')
+});
+
 router.get('/api/notifications', ensureLoggedIn('/api/unauthorized'), function (req, res) {
     let sample = require('../test/data/handleLoginSample')
     let payloads = require ('../test/data/payloadTypesAndSamples')
