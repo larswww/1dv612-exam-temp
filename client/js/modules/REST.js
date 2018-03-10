@@ -2,6 +2,7 @@
 var CORE = require('../core');
 
 CORE.create_module('REST', function (sb) {
+    var connectionUrl = 'http://localhost:3000'
     var loadAtStartup = ['settings', 'notifications', 'stats']
 
     var requestAll = function() {

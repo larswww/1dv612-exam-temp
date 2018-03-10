@@ -2,7 +2,6 @@
 //var ioc = require('socket.io-client');
 var Sandbox = require('./facade');
 
-var connectionUrl = 'http://localhost:3000'
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
