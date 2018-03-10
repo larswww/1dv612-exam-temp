@@ -14,7 +14,7 @@ let env = {
 };
 
 router.get('/login', function (req, res) {
-    res.render('start');
+    res.sendFile('index.html');
 });
 
 router.get('/auth/github',
@@ -25,12 +25,8 @@ router.get('/auth/github/callback',
     passport.authenticate('github', {failureRedirect: '/login', successRedirect: '/'})
 );
 
-router.get('/', ensureLoggedIn('/login'), function (req, res) {
-    githubAPI.createClient(req.user.accessToken);
-    Promise.all([githubAPI.basicRequests(req.user.accessToken), db.handleLogin(req.user)]).then(userSettings => {
-        let context = {title: 'Express', env: env, user: req.user, git: userSettings[0], prefs: userSettings[1]};
-        res.render('notifications', context);
-    });
+router.get('/dashboard.html', ensureLoggedIn('/login'), function (req, res) {
+    res.sendFile('dashboard.html')
 });
 
 router.get('/api/notifications', ensureLoggedIn('/api/unauthorized'), function (req, res) {

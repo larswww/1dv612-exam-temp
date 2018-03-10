@@ -12,7 +12,7 @@ CORE.create_module('REST', function (sb) {
     }
 
     var ajaxRequest = function (event) {
-        $.get('http://localhost:3000/api/' + event, function (data) {
+        $.get(`${connectionUrl}/api/${event}`, function (data) {
             sb.notify({type: event, data: data.data}) //ffs
         })
     }
