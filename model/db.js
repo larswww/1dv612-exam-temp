@@ -57,7 +57,7 @@ function handleLogin(profile) {
 
             if (matchingUser) {
                 getSavedPreferencesFor(matchingUser).then(prefs => {
-                    schema.user.update({user: matchingUser._id}, )
+                    schema.user.update({user: matchingUser._id})
                     resolve(prefs);
                 }).catch(e => {
                     reject(e);
