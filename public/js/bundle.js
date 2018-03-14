@@ -5,8 +5,8 @@ var Sandbox = require('./facade');
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    var connectionUrl = 'https://github.larsw.net/api/'
-    //var connectionUrl = 'http://localhost:3000/api/'
+    //var connectionUrl = 'https://github.larsw.net/api/'
+    var connectionUrl = 'http://localhost:3000/api/'
 
     return {
         debug: function (on) {
@@ -111,6 +111,7 @@ var CORE = (function () {
             jQuery.ajax(url, {
                 method: type,
                 url: url,
+                contentType: 'application/json; charset=UTF-8',
                 dataType: 'json',
                 data: payload
             }).done(function (data) {
@@ -680,9 +681,9 @@ var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
 
-    const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+    // const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
     // localhost:
-    // const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
 
     const pushButton = document.querySelector('#pushNoticeButton');
 

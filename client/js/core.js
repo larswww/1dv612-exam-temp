@@ -4,8 +4,8 @@ var Sandbox = require('./facade');
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    var connectionUrl = 'https://github.larsw.net/api/'
-    //var connectionUrl = 'http://localhost:3000/api/'
+    //var connectionUrl = 'https://github.larsw.net/api/'
+    var connectionUrl = 'http://localhost:3000/api/'
 
     return {
         debug: function (on) {
@@ -110,6 +110,7 @@ var CORE = (function () {
             jQuery.ajax(url, {
                 method: type,
                 url: url,
+                contentType: 'application/json; charset=UTF-8',
                 dataType: 'json',
                 data: payload
             }).done(function (data) {

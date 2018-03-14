@@ -24,7 +24,7 @@ function toSubscriber(subscription, notification) {
     console.log(subscription);
     console.log(jsonPayload);
 
-    webpush.sendNotification(JSON.parse(subscription), jsonPayload).then(result => {
+    webpush.sendNotification(subscription, jsonPayload).then(result => {
         console.log('webpush.sendnotification result: ', result);
     }).catch(error => {
        console.error('webpush.sendnotification error: ', error);
