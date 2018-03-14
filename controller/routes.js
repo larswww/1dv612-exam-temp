@@ -107,11 +107,15 @@ router.get('/api/stats', ensureLoggedIn('/api/unauthorized'), async function (re
 router.post('/api/push/subscribe', ensureLoggedIn('/api/unauthorized'), async function (req, res) {
     db.saveSubscription(req.body, req.user); // todo then for sub button, figure out the resolve.
     let newNotice = createNotification.format(req.user.id, "sub");
-    webPush.toSubscriber(JSON.stringify(subscription), newNotice);
+    webPush.toSubscriber(JSON.stringify(req.body), newNotice);
+    res.status(200)
+    res.send({message: 'subscription created'})
 })
 
 router.post('/api/push/unsubscribe', ensureLoggedIn('/api/unauthorized'), async function (req, res) {
     db.deleteSubscription(req.user);
+    res.status(200)
+    res.send({message: 'subscription removed'})
 })
 
 

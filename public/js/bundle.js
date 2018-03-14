@@ -1,13 +1,12 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict';
-//var ioc = require('socket.io-client');
 var Sandbox = require('./facade');
 
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    var connectionUrl = 'http://localhost:3000/api/'
-    // var coreSocket = io();
+    var connectionUrl = 'https://github.larsw.net/api/'
+    //var connectionUrl = 'http://localhost:3000/api/'
 
     return {
         debug: function (on) {
@@ -216,7 +215,6 @@ module.exports = CORE;
 var Sandbox = {
     create: function (core, module_selector) {
         var CONTAINER = core.dom.query('#' + module_selector);
-        var connectionUrl = 'http://localhost:3000'
 
         return {
 
@@ -682,9 +680,9 @@ var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
 
-    //const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+    const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
     // localhost:
-    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+    // const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
 
     const pushButton = document.querySelector('#pushNoticeButton');
 
@@ -816,7 +814,7 @@ CORE.create_module('webPushButton', function (sb) {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             console.log('Service Worker and Push is supported');
 
-            navigator.serviceWorker.register('/js/sw.js')
+            navigator.serviceWorker.register('public/js/sw.js')
                 .then(function (swReg) {
                     console.log('Service Worker is registered', swReg);
 

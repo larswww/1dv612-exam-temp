@@ -1,12 +1,11 @@
 'use strict';
-//var ioc = require('socket.io-client');
 var Sandbox = require('./facade');
 
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    var connectionUrl = 'http://localhost:3000/api/'
-    // var coreSocket = io();
+    var connectionUrl = 'https://github.larsw.net/api/'
+    //var connectionUrl = 'http://localhost:3000/api/'
 
     return {
         debug: function (on) {

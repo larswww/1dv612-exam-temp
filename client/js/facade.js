@@ -3,7 +3,6 @@
 var Sandbox = {
     create: function (core, module_selector) {
         var CONTAINER = core.dom.query('#' + module_selector);
-        var connectionUrl = 'http://localhost:3000'
 
         return {
 
