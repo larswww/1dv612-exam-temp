@@ -1,0 +1,13 @@
+{
+    "_id": {
+        "$oid": "596bc34d4725cb12a55f03e3"
+    },
+    "id": "14055501",
+    "username": "larswww",
+    "accessToken": "42f69c60e7f59856ae3642cf9eb7085fac931129",
+    "_raw": "{\"login\":\"larswww\",\"id\":14055501,\"avatar_url\":\"https://avatars5.githubusercontent.com/u/14055501?v=4\",\"gravatar_id\":\"\",\"url\":\"https://api.github.com/users/larswww\",\"html_url\":\"https://github.com/larswww\",\"followers_url\":\"https://api.github.com/users/larswww/followers\",\"following_url\":\"https://api.github.com/users/larswww/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/larswww/gists{/gist_id}\",\"starred_url\":\"https://api.github.com/users/larswww/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/larswww/subscriptions\",\"organizations_url\":\"https://api.github.com/users/larswww/orgs\",\"repos_url\":\"https://api.github.com/users/larswww/repos\",\"events_url\":\"https://api.github.com/users/larswww/events{/privacy}\",\"received_events_url\":\"https://api.github.com/users/larswww/received_events\",\"type\":\"User\",\"site_admin\":false,\"name\":null,\"company\":null,\"blog\":\"\",\"location\":null,\"email\":null,\"hireable\":null,\"bio\":null,\"public_repos\":20,\"public_gists\":0,\"followers\":0,\"following\":4,\"created_at\":\"2015-08-31T13:27:10Z\",\"updated_at\":\"2017-07-16T04:25:31Z\",\"private_gists\":0,\"total_private_repos\":1,\"owned_private_repos\":1,\"disk_usage\":35756,\"collaborators\":0,\"two_factor_authentication\":false,\"plan\":{\"name\":\"developer\",\"space\":976562499,\"collaborators\":0,\"private_repos\":9999}}",
+    "notifications": [],
+    "organizations": [],
+    "__v": 0,
+    "subscription": "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/fxE9FZBr1Bg:APA91bGoK5YCEeZLUrXePwXr8AAKKdC2KVSV9g31l7Nj4ieOCw0DQkHudVIj9obcC1Utr22C1hNguJU3BSM7F235kLC0RPPmaEl_d16LHa3EI82j7klCeg98iOqo0QtfwfKeU2dYLN8X\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BFl1Lm7iMWHDJUKPI9G4hkE9mMudvH4cgEBqhAdqh1Nc2xxgaDTOiqgooAgOxBQC6iAeZeKAApIM7k1dI3c1aA8=\",\"auth\":\"ZWV6cbtKMPixHAN2zIU46Q==\"}}"
+}

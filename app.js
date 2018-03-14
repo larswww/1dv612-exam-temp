@@ -1,5 +1,4 @@
 'use strict';
-
 const express = require('express');
 const http = require('http');
 const dotenv = require('dotenv');
@@ -14,8 +13,7 @@ const sessionStore = new RedisStore({ client: redisClient });
 const logger = require('morgan');
 
 const bodyParser = require('body-parser');
-const hbsHelpers = require('./views/helpers');
-const handlebars = require('express-handlebars').create(hbsHelpers);
+const handlebars = require('express-handlebars').create({defaultLayout: 'main'});
 
 
 const db = require('./model/db');
@@ -34,23 +32,23 @@ function startServer() {
         console.log('Express started in on http://localhost:' + process.env.PORT + '; press Ctrl-C to terminate.');
     });
 
-    db.connect(process.env.MLAB_CONNECTION_STRING).then(() => {
+    db.connect(process.env.LOCAL_CONNECTION_STRING).then(() => {
         // let testFile = require('./test-file')();
     });
 
-    const io = require('socket.io')(server);
-    const passportSocketIo = require('passport.socketio');
-
-    io.use(passportSocketIo.authorize({
-        cookieParser: cookieParser,
-        key: 'connect.sid',
-        secret: process.env.SESSION_SECRET,
-        store: sessionStore,
-    }));
-
-    io.on('connection', socket => {
-        socketController.activate(socket);
-    });
+    // const io = require('socket.io')(server);
+    // const passportSocketIo = require('passport.socketio');
+    //
+    // io.use(passportSocketIo.authorize({
+    //     cookieParser: cookieParser,
+    //     key: 'connect.sid',
+    //     secret: process.env.SESSION_SECRET,
+    //     store: sessionStore,
+    // }));
+    //
+    // io.on('connection', socket => {
+    //     socketController.activate(socket);
+    // });
 
 }
 
@@ -58,7 +56,6 @@ app.set('port', process.env.PORT);
 
 app.use(logger('dev'));
 app.use('/', express.static('public'));
-app.use('/', express.static('bower_components'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -73,6 +70,8 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+// const authenticate = require ('./model/authenticate')
+
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
@@ -87,18 +86,17 @@ app.use(function(req, res, next) {
     next();
 });
 
-
-
-dotenv.load();
-
 let strategy = new GithubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
     callbackUrl: process.env.GITHUB_CALLBACK_URL
 
-}, function (accessToken, refreshToken, user, done) {
-    user.accessToken = accessToken;
-    done(null, user);
+}, async function (accessToken, refreshToken, profile, done) {
+    profile.accessToken = accessToken;
+    let user = await db.handleLogin(profile)
+    if (!user) return done(true)
+    user.profile = profile
+    done(null, user)
 });
 
 
@@ -123,26 +121,25 @@ app.use(function (req, res, next) {
     next(err);
 });
 
-if (app.get('env') === 'development') {
-    app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err,
-        });
-    });
-    process.on('unhandledRejection', r => console.error(JSON.stringify(r)));
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    let err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
 
-} else {
-    // Production error handler utan stacktrace
-    app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: {},
-        });
-    });
-}
+// error handler
+app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+});
+
+process.on('unhandledRejection', r => console.error(JSON.stringify(r)));
 
 
 if (require.main === module) {

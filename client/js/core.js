@@ -5,6 +5,7 @@ var Sandbox = require('./facade');
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
+    var connectionUrl = 'http://localhost:3000/api/'
     // var coreSocket = io();
 
     return {
@@ -103,6 +104,20 @@ var CORE = (function () {
 
         moment: function (time) {
           return moment().fromNow(time)
+        },
+
+        request: function (type, endpoint, callback, payload) {
+            let url = `${connectionUrl}${endpoint}`
+            jQuery.ajax(url, {
+                method: type,
+                url: url,
+                dataType: 'json',
+                data: payload
+            }).done(function (data) {
+                callback(null, data)
+            }).fail(
+                callback(`Error: ${type} ${endpoint}`)
+            )
         },
 
         log: function (severity, message) {

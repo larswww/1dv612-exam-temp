@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict';
 //var ioc = require('socket.io-client');
 var Sandbox = require('./facade');
@@ -6,6 +6,7 @@ var Sandbox = require('./facade');
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
+    var connectionUrl = 'http://localhost:3000/api/'
     // var coreSocket = io();
 
     return {
@@ -106,6 +107,20 @@ var CORE = (function () {
           return moment().fromNow(time)
         },
 
+        request: function (type, endpoint, callback, payload) {
+            let url = `${connectionUrl}${endpoint}`
+            jQuery.ajax(url, {
+                method: type,
+                url: url,
+                dataType: 'json',
+                data: payload
+            }).done(function (data) {
+                callback(null, data)
+            }).fail(
+                callback(`Error: ${type} ${endpoint}`)
+            )
+        },
+
         log: function (severity, message) {
             if (debug) {
                 console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](message);
@@ -201,6 +216,8 @@ module.exports = CORE;
 var Sandbox = {
     create: function (core, module_selector) {
         var CONTAINER = core.dom.query('#' + module_selector);
+        var connectionUrl = 'http://localhost:3000'
+
         return {
 
             find: function (selector) {
@@ -277,6 +294,25 @@ var Sandbox = {
                 return core.dom.lock();
             },
 
+            get: function (endpoint, callback) {
+                core.request('GET', endpoint, callback)
+            },
+
+            post: function (endpoint, data, callback) {
+                if (!callback) {
+                    callback = function (err, res) {
+                        if (err) {
+                            console.error(err)
+                        } else {
+                            console.log(endpoint, res.status)
+                        }
+                    }
+                }
+
+                data = JSON.stringify(data)
+                core.request('POST', endpoint, callback, data)
+            },
+
             chart: function () {
 
             },
@@ -309,13 +345,12 @@ var REST = require('./modules/REST')
 var notifications = require('./modules/notifications')
 var stats = require('./modules/stats')
 var settings = require('./modules/settings')
-//var serviceWorker = require('./modules/webPushButton')
-},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/loading":5,"./modules/notifications":6,"./modules/settings":7,"./modules/stats":8,"./modules/subscribeButtons":9}],4:[function(require,module,exports){
+var serviceWorker = require('./modules/webPushButton')
+},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/loading":5,"./modules/notifications":6,"./modules/settings":7,"./modules/stats":8,"./modules/subscribeButtons":9,"./modules/webPushButton":10}],4:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
 CORE.create_module('REST', function (sb) {
-    var connectionUrl = 'http://localhost:3000'
     var loadAtStartup = ['settings', 'notifications', 'stats']
 
     var requestAll = function() {
@@ -326,8 +361,8 @@ CORE.create_module('REST', function (sb) {
     }
 
     var ajaxRequest = function (event) {
-        $.get(`${connectionUrl}/api/${event}`, function (data) {
-            sb.notify({type: event, data: data.data}) //ffs
+        sb.get(event, function (err, data) {
+            if (!err) sb.notify({type: event, data: data.data}) //ffs
         })
     }
 
@@ -337,8 +372,6 @@ CORE.create_module('REST', function (sb) {
             sb.listen({
                 'ajax-request': this.ajaxRequest,
             });
-
-
         },
 
         destroy: function () {
@@ -440,17 +473,58 @@ CORE.create_module('settings', function (sb) {
 
     var recievedSettings = function (data) {
         console.log('recieved settings ', data)
+
+        try {
+            let savedHooks = []
+            for (let hook of data.hooks) savedHooks.push(hook.org)
+            for (let org of data.orgs) addOrgToSettings(org, savedHooks)
+
+        } catch (e) {
+            console.error(e)
+        }
     }
+    
+    var settingsFormSubmit = function (event) {
+        event.preventDefault()
+
+
+
+        const inputs = event.currentTarget.querySelectorAll('input')
+        let settings = {}
+        for (let input of inputs) settings[input.value] = input.checked
+        sb.post('settings', settings, function (err, data) {
+            if (err) console.error(err)
+
+
+        })
+
+    }
+
+
+
+    var addOrgToSettings = function (org, savedHooks) {
+        let subscribed = ''
+        if (savedHooks.indexOf(org.login) > -1) subscribed = 'checked'
+
+        let html = [`<div class="form-check">`,
+            `<input class="form-check-input" type="checkbox" value="${org.login}" id="${org.login}" ${subscribed}>`,
+            `<label class="form-check-label" for="${org.login}">${org.login} </label></div>`]
+
+        sb.append_elements(`${selector} > div > div > div.modal-body > form > div.form-group > h6`, html)
+
+    }
+    // render the settings
+    // but, should be based on current subscription settings?
 
     return {
         init: function () {
+            sb.addEvent('#settingsForm', 'submit', settingsFormSubmit)
             sb.notify({type: 'start-loading', data: {selector: selector, target: 'h3'}})
             sb.listen({
                 'settings': recievedSettings //todo is it necessary to make it this.buttonState???
 
             })
         },
-
 
 
         destroy: function () {
@@ -600,5 +674,176 @@ CORE.create_module('subscribeButtons', function (sb) {
 
         },
     }
+});
+},{"../core":1}],10:[function(require,module,exports){
+'use strict';
+
+var CORE = require('../core');
+
+CORE.create_module('webPushButton', function (sb) {
+
+    //const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+    // localhost:
+    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+
+    const pushButton = document.querySelector('#pushNoticeButton');
+
+    let isSubscribed = false;
+    let swRegistration = null;
+
+    function urlB64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    function updateBtn() {
+
+        if (Notification.permission === 'denied') {
+            pushButton.textContent = 'Push Messaging Blocked.';
+            pushButton.disabled = true;
+            updateSubscriptionOnServer(null);
+            return;
+        }
+
+        if (isSubscribed) {
+            pushButton.textContent = 'Disable Push Messaging';
+        } else {
+            pushButton.textContent = 'Enable Push Messaging';
+        }
+
+        pushButton.disabled = false;
+    }
+
+    function initialiseUI() {
+        pushButton.addEventListener('click', function () {
+            pushButton.disabled = true;
+            if (isSubscribed) {
+                unsubscribeUser()
+            } else {
+                subscribeUser();
+            }
+        });
+
+        // Set the initial subscription value
+        swRegistration.pushManager.getSubscription()
+            .then(function (subscription) {
+                isSubscribed = !(subscription === null);
+
+                updateSubscriptionOnServer(subscription);
+
+                if (isSubscribed) {
+                    console.log('User IS subscribed.');
+                } else {
+                    console.log('User is NOT subscribed.');
+                }
+
+                updateBtn();
+            });
+    }
+
+    function subscribeUser() {
+        const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
+        swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey
+        })
+            .then(function (subscription) {
+                console.log('User is subscribed');
+
+                updateSubscriptionOnServer(subscription);
+
+                isSubscribed = true;
+
+                updateBtn();
+            })
+            .catch(function (err) {
+                console.log('Failed to subscribe the user: ', err);
+                updateBtn();
+            });
+    }
+
+    function unsubscribeUser() {
+        swRegistration.pushManager.getSubscription()
+            .then(subscription => {
+                if (subscription) return subscription.unsubscribe();
+            })
+            .catch(error => {
+                console.error('Error unsubscribing: ', error);
+            })
+            .then(() => {
+                updateSubscriptionOnServer(null);
+
+                console.log('User is unsubscribed');
+                isSubscribed = false;
+
+                updateBtn();
+            })
+    }
+
+    function updateSubscriptionOnServer(subscription) {
+
+        const subscriptionJson = document.querySelector('.js-subscription-json');
+        const subscriptionDetails =
+            document.querySelector('.js-subscription-details');
+
+        if (subscription) {
+
+            sb.post('push/subscribe',subscription ,function(err, res) {console.log(err, res)});
+
+            subscriptionJson.textContent = JSON.stringify(subscription);
+            subscriptionDetails.classList.remove('is-invisible');
+        } else {
+
+            sb.post('push/unsubscribe','disable subscription', function(err, res) {console.log(err, res)});
+
+            subscriptionDetails.classList.add('is-invisible');
+        }
+    }
+
+
+    var startWorker = function () {
+
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            console.log('Service Worker and Push is supported');
+
+            navigator.serviceWorker.register('/js/sw.js')
+                .then(function (swReg) {
+                    console.log('Service Worker is registered', swReg);
+
+                    swRegistration = swReg;
+                    initialiseUI();
+                })
+                .catch(function (error) {
+                    console.error('Service Worker Error', error);
+                });
+        } else {
+            console.warn('Push messaging is not supported');
+            pushButton.textContent = 'Push Not Supported';
+        }
+
+    };
+
+
+    return {
+        init: function () {
+            startWorker();
+        },
+
+        destroy: function () {
+
+        }
+    }
+
+
 });
 },{"../core":1}]},{},[3]);

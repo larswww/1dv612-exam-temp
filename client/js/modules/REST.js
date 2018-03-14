@@ -2,7 +2,6 @@
 var CORE = require('../core');
 
 CORE.create_module('REST', function (sb) {
-    var connectionUrl = 'http://localhost:3000'
     var loadAtStartup = ['settings', 'notifications', 'stats']
 
     var requestAll = function() {
@@ -13,8 +12,8 @@ CORE.create_module('REST', function (sb) {
     }
 
     var ajaxRequest = function (event) {
-        $.get(`${connectionUrl}/api/${event}`, function (data) {
-            sb.notify({type: event, data: data.data}) //ffs
+        sb.get(event, function (err, data) {
+            if (!err) sb.notify({type: event, data: data.data}) //ffs
         })
     }
 
@@ -24,8 +23,6 @@ CORE.create_module('REST', function (sb) {
             sb.listen({
                 'ajax-request': this.ajaxRequest,
             });
-
-
         },
 
         destroy: function () {

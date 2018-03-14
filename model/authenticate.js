@@ -1,7 +1,7 @@
 'use strict';
-
-let passport = require('passport');
-let dotenv = require('dotenv');
+const passport = require('passport');
+const GithubStrategy = require('passport-github2');
+const dotenv = require('dotenv');
 
 function handleAuth (accessToken, refreshToken, user, done) {
     user.accessToken = accessToken;
@@ -28,4 +28,3 @@ passport.deserializeUser(function(user, done) {
     done(null, user);
 });
 
-module.exports = passport;

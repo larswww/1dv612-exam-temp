@@ -1,0 +1,101 @@
+<div class="container">
+    <section>
+        <nav class="navbar navbar-light bg-light">
+            <a class="navbar-brand" href="#">
+                Github Notifcations
+            </a>
+            <ul class="nav nav-fill">
+                <li class="nav-item">
+                    <a class="nav-link" href="" data-toggle="modal" data-target="#settings"><i
+                            class="fas fa-cog"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link red" href="/logout"><i class="fas fa-sign-out-alt"></i></a>
+                </li>
+            </ul>
+        </nav>
+
+    </section>
+
+    <div class="row">
+
+        <div id="stats" class="col-12 col-md-8">
+
+            <h3>Your Github Stats</h3>
+
+            <ul class="list-group">
+                <!--<li class="list-group-item d-flex justify-content-between align-items-center">-->
+                <!--Organizations-->
+                <!--<span class="badge badge-primary badge-pill">14</span>-->
+                <!--</li>-->
+                <!--<li class="list-group-item d-flex justify-content-between align-items-center">-->
+                <!--Repositories-->
+                <!--<span class="badge badge-primary badge-pill">2</span>-->
+                <!--</li>-->
+                <!--<li class="list-group-item d-flex justify-content-between align-items-center">-->
+                <!--Users-->
+                <!--<span class="badge badge-primary badge-pill">1</span>-->
+                <!--</li>-->
+            </ul>
+        </div>
+
+        <div id="notifications" class="col-12 col-md-4">
+
+            <h3>Notifications</h3>
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">Notification Settings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <form id="settingsForm">
+                    <div class="form-row">
+                        <div class="form-group">
+
+                            <button type="button" id="pushNoticeButton" class="btn btn-primary btn-lg btn-block">Enable Browser Notifications</button>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <h6>Select which Organizations to Receive Notifications For</h6>
+
+
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id=settingsFormButton type="submit" class="btn btn-primary">Save Changes</button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="subscription-details js-subscription-details is-invisible">
+    <pre><code class="js-subscription-json"></code></pre>
+</section>

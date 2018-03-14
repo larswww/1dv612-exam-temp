@@ -3,6 +3,8 @@
 var Sandbox = {
     create: function (core, module_selector) {
         var CONTAINER = core.dom.query('#' + module_selector);
+        var connectionUrl = 'http://localhost:3000'
+
         return {
 
             find: function (selector) {
@@ -77,6 +79,25 @@ var Sandbox = {
 
             lock: function () {
                 return core.dom.lock();
+            },
+
+            get: function (endpoint, callback) {
+                core.request('GET', endpoint, callback)
+            },
+
+            post: function (endpoint, data, callback) {
+                if (!callback) {
+                    callback = function (err, res) {
+                        if (err) {
+                            console.error(err)
+                        } else {
+                            console.log(endpoint, res.status)
+                        }
+                    }
+                }
+
+                data = JSON.stringify(data)
+                core.request('POST', endpoint, callback, data)
             },
 
             chart: function () {

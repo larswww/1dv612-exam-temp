@@ -319,8 +319,8 @@ let formatNotification = {
         return {
             title: 'Notifications activated',
             body: 'Change which organisations you receive notices for anytime.',
-            icon: payload.sender.avatar_url,
-            url: 'http://www.chinese5k.com'
+            icon: '',
+            url: 'https://github.larsw.net'
         }
     },
 
@@ -340,7 +340,8 @@ let formatNotification = {
             icon: payload.organization.avatar_url,
             url: payload.organization.url,
         }
-    }
+    },
+
 };
 
 // title

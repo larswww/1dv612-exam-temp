@@ -23,7 +23,7 @@ function connect(credential) {
 
         db.once('open', function () {
             resolve();
-            console.log('Connected to MongoLab DB');
+            console.log('Connected to DB');
         });
 
 
@@ -41,7 +41,8 @@ function handleLogin(profile) {
                 console.error(err);
             }
 
-            if (matchingUser === null) { //todo this leads to wrong data going to
+            // automatically create if users doesnt exist
+            if (matchingUser === null) {
                 let newUser = new schema.user({
                     id: profile.id,
                     username: profile.username,
@@ -50,33 +51,25 @@ function handleLogin(profile) {
                 });
 
                 newUser.save().then(() => {
-                    // todo get the array for organizations.
+                    resolve(newUser)
                 });
-                resolve(false); // returning/resolving false bad practice but..?
             }
 
             if (matchingUser) {
-                getSavedPreferencesFor(matchingUser).then(prefs => {
-                    schema.user.update({user: matchingUser._id})
-                    resolve(prefs);
-                }).catch(e => {
-                    reject(e);
-                });
+                matchingUser.accessToken = profile.accessToken
+                resolve(matchingUser)
+                matchingUser.save()
             }
         });
     });
 }
 
 function saveSubscription(subscription, profile) {
-    console.log(subscription);
-    console.log(profile);
-
-    let json = JSON.stringify(subscription);
 
     schema.user.findOneAndUpdate({
         id: profile.id,
         username: profile.username
-    }, {subscription: json}, function (err, matchingUser) {
+    }, {subscription: JSON.stringify(subscription)}, function (err, matchingUser) {
 
         //TODO could make this DRY
         if (err) {
@@ -98,7 +91,7 @@ function deleteSubscription(user) {
 
     schema.user.findOneAndUpdate({
         id: user.id,
-        username: profile.username
+        username: user.username
     }, {subscription: false}, (err) => {
         if (err) console.error(err);
     })
@@ -178,7 +171,7 @@ function saveNotification(user, notification) {
 
 function subscribeTo(hook, user) {
 
-    schema.user.findOne({id: user.id}).then(userDoc => { //todo feels like an unnecessary db call?
+    schema.user.findOne({id: user.id}).then(userDoc => {
 
         schema.subscription.update({user: userDoc._id},
             {

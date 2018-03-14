@@ -53,6 +53,8 @@ let userSchema = new mongoose.Schema({
         type: String
     },
 
+    hooks: Array
+
 
 });
 

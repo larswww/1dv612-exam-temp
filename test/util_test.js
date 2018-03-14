@@ -2,6 +2,8 @@
 const expect = require('chai').expect;
 const notificationHelper = require('../model/helpers/notification');
 const payloadHandler = require('../model/helpers/payloadHandler');
+const dotenv =require('dotenv').load()
+
 
 describe('util tests', () => {
 
@@ -83,7 +85,17 @@ it('Should return false for invalid github user ids', () => {
 
 });
 
-describe('notification tests', () => {
+describe('githubFacade tests', () => {
+    const ghf = require('../model/githubFacade')
+    const github = new ghf(process.env.github_sample_accessToken)
+    console.log(process.env.github_sample_accessToken)
+
+    it('should return results for orgs', async function () {
+        const orgs = await github.apiRequest('orgs')
+        console.log(orgs)
+
+
+    })
 
 
 

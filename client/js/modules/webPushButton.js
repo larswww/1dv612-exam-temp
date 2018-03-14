@@ -4,10 +4,11 @@ var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
 
-    const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
-    // localhost: const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+    //const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+    // localhost:
+    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
 
-    const pushButton = document.querySelector('.js-push-btn');
+    const pushButton = document.querySelector('#pushNoticeButton');
 
     let isSubscribed = false;
     let swRegistration = null;
@@ -46,10 +47,10 @@ CORE.create_module('webPushButton', function (sb) {
     }
 
     function initialiseUI() {
-        pushButton.addEventListener('click', function() {
+        pushButton.addEventListener('click', function () {
             pushButton.disabled = true;
             if (isSubscribed) {
-                // TODO: Unsubscribe user
+                unsubscribeUser()
             } else {
                 subscribeUser();
             }
@@ -57,7 +58,7 @@ CORE.create_module('webPushButton', function (sb) {
 
         // Set the initial subscription value
         swRegistration.pushManager.getSubscription()
-            .then(function(subscription) {
+            .then(function (subscription) {
                 isSubscribed = !(subscription === null);
 
                 updateSubscriptionOnServer(subscription);
@@ -78,7 +79,7 @@ CORE.create_module('webPushButton', function (sb) {
             userVisibleOnly: true,
             applicationServerKey: applicationServerKey
         })
-            .then(function(subscription) {
+            .then(function (subscription) {
                 console.log('User is subscribed');
 
                 updateSubscriptionOnServer(subscription);
@@ -87,12 +88,12 @@ CORE.create_module('webPushButton', function (sb) {
 
                 updateBtn();
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.log('Failed to subscribe the user: ', err);
                 updateBtn();
             });
     }
-    
+
     function unsubscribeUser() {
         swRegistration.pushManager.getSubscription()
             .then(subscription => {
@@ -102,12 +103,12 @@ CORE.create_module('webPushButton', function (sb) {
                 console.error('Error unsubscribing: ', error);
             })
             .then(() => {
-            updateSubscriptionOnServer(null);
+                updateSubscriptionOnServer(null);
 
-            console.log('User is unsubscribed');
-            isSubscribed = false;
+                console.log('User is unsubscribed');
+                isSubscribed = false;
 
-            updateBtn();
+                updateBtn();
             })
     }
 
@@ -119,19 +120,13 @@ CORE.create_module('webPushButton', function (sb) {
 
         if (subscription) {
 
-            sb.notify({
-                type: 'push-subscription',
-                data: subscription
-            });
+            sb.post('push/subscribe',subscription ,function(err, res) {console.log(err, res)});
 
             subscriptionJson.textContent = JSON.stringify(subscription);
             subscriptionDetails.classList.remove('is-invisible');
         } else {
 
-            sb.notify({
-                type: 'push-unsubscribe',
-                data: false
-            });
+            sb.post('push/unsubscribe','disable subscription', function(err, res) {console.log(err, res)});
 
             subscriptionDetails.classList.add('is-invisible');
         }
@@ -143,34 +138,33 @@ CORE.create_module('webPushButton', function (sb) {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             console.log('Service Worker and Push is supported');
 
-            navigator.serviceWorker.register('/public/js/sw.js')
-                .then(function(swReg) {
+            navigator.serviceWorker.register('/js/sw.js')
+                .then(function (swReg) {
                     console.log('Service Worker is registered', swReg);
 
                     swRegistration = swReg;
                     initialiseUI();
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error('Service Worker Error', error);
                 });
         } else {
             console.warn('Push messaging is not supported');
             pushButton.textContent = 'Push Not Supported';
         }
-        
+
     };
-    
-    
+
+
     return {
         init: function () {
             startWorker();
         },
-        
+
         destroy: function () {
-            
+
         }
     }
 
-    
 
 });

@@ -75,14 +75,14 @@ function createHook(org, userID) {
 
     return new Promise((resolve, reject) => {
 
-        let ghorg = client.org(org.url.org);
+        let ghorg = client.org(org);
 
         ghorg.hook({
             "name": "web",
             "active": true,
-            "events": ["*"], // todo load event types from client.
+            "events": ["*"],
             "config": {
-                "url": `${process.env.GITHUB_WEBHOOK_POST}/${userID}`, //todo should probably add a salt or something?
+                "url": `${process.env.GITHUB_WEBHOOK_POST}/${userID}`,
                 "content_type": "json",
                 "insecure_ssl": 1
             }
@@ -92,12 +92,13 @@ function createHook(org, userID) {
                 reject(err);
             }
 
-            if (body && body.status !== '201 Created') { // todo same?
+            if (body && body.status !== '201 Created') {
                 console.error(body);
                 reject(err);
             }
 
             if (hook) {
+                console.log(hook)
                 ghorg.repos((err, repos) => {
                     if (err) {
                         reject(err);
@@ -110,7 +111,6 @@ function createHook(org, userID) {
                     }
 
                     resolve(hook);
-                    socketController.emit('hook-created', {org: org.url.org, events: hook.events, repos: repos})
                 });
             }
         });
