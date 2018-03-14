@@ -16,10 +16,12 @@ let env = {
 };
 
 router.get('/login', function (req, res) {
+    res.status(200)
     res.render('login')
 });
 
 router.get('/', ensureLoggedIn('/login'), function (req, res) {
+    res.status(200)
     res.render('dashboard', {user: req.user ? true : false})
 });
 
@@ -51,6 +53,7 @@ router.get('/api/notifications', ensureLoggedIn('/login.html'), async function (
     // }
 
     // db.handleLogin(req.user).then((data) => {
+    res.status(200)
     res.send({message: 'some notifications!', data: notifications})
 
     // })
@@ -63,6 +66,7 @@ router.get('/api/settings', ensureLoggedIn('/api/unauthorized'), async function 
     let hooks = await dbFacade.getGooks(req.user._id)
     // githubAPI.createClient(req.user.accessToken);
     // githubAPI.basicRequests(req.user.accessToken).then((git) => {
+    res.status(200)
     res.send({message: 'some settings', data: {orgs, hooks}})
     // })
 })
@@ -92,6 +96,7 @@ router.post('/api/settings', ensureLoggedIn('/api/unauthorized'), async function
     }
 
 
+    res.status(200)
     res.send({message: 'settings updated'})
 
 })

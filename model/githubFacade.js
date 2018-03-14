@@ -51,6 +51,7 @@ class GithubApi {
                 }
 
                 if (hook) {
+                    console.log(hook)
                     resolve(hook)
                 }
             });
