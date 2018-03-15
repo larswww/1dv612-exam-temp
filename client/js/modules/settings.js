@@ -21,16 +21,10 @@ CORE.create_module('settings', function (sb) {
     var settingsFormSubmit = function (event) {
         event.preventDefault()
 
-
-
         const inputs = event.currentTarget.querySelectorAll('input')
         let settings = {}
         for (let input of inputs) settings[input.value] = input.checked
-        sb.post('settings', settings, function (err, data) {
-            if (err) console.error(err)
-
-
-        })
+        sb.post('settings', settings)
 
     }
 

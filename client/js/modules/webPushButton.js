@@ -4,10 +4,6 @@ var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
 
-    // const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
-    // localhost:
-    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
-
     const pushButton = document.querySelector('#pushNoticeButton');
 
     let isSubscribed = false;

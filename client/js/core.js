@@ -1,11 +1,19 @@
 'use strict';
+
+//live
+const connectionUrl = 'https://github.larsw.net/api/'
+const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+
+// local
+//const connectionUrl = 'http://localhost:3000/api/'
+//const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+
 var Sandbox = require('./facade');
 
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    //var connectionUrl = 'https://github.larsw.net/api/'
-    var connectionUrl = 'http://localhost:3000/api/'
+
 
     return {
         debug: function (on) {
@@ -107,17 +115,23 @@ var CORE = (function () {
 
         request: function (type, endpoint, callback, payload) {
             let url = `${connectionUrl}${endpoint}`
-            jQuery.ajax(url, {
+            let ajaxConfig = {
                 method: type,
                 url: url,
                 contentType: 'application/json; charset=UTF-8',
                 dataType: 'json',
                 data: payload
-            }).done(function (data) {
+            }
+            
+            if (debug) {
+                ajaxConfig.error = function (xhr, textStatus, errorThrown) {
+                    console.error(xhr, textStatus, errorThrown)
+                }
+            }
+
+            jQuery.ajax(url, ajaxConfig).done(function (data) {
                 callback(null, data)
-            }).fail(
-                callback(`Error: ${type} ${endpoint}`)
-            )
+            })
         },
 
         log: function (severity, message) {

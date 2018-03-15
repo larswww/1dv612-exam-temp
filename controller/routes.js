@@ -74,9 +74,10 @@ router.get('/api/settings', ensureLoggedIn('/api/unauthorized'), async function 
 router.post('/api/settings', ensureLoggedIn('/api/unauthorized'), async function (req, res) {
     let github = new githubFacade(req.user.accessToken)
 
+
     for (let org in req.body) {
         try {
-            if (req.body[org] === 'true') {
+            if (req.body[org]) {
 
                 if (await dbFacade.hookExists(req.user._id, org)) {
                     let hook = await github.createHook(org, req.user.id)

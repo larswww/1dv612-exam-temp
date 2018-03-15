@@ -1,12 +1,20 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict';
+
+//live
+const connectionUrl = 'https://github.larsw.net/api/'
+const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+
+// local
+//const connectionUrl = 'http://localhost:3000/api/'
+//const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+
 var Sandbox = require('./facade');
 
 var CORE = (function () {
     var moduleData = {};
     var debug = true;
-    //var connectionUrl = 'https://github.larsw.net/api/'
-    var connectionUrl = 'http://localhost:3000/api/'
+
 
     return {
         debug: function (on) {
@@ -108,17 +116,23 @@ var CORE = (function () {
 
         request: function (type, endpoint, callback, payload) {
             let url = `${connectionUrl}${endpoint}`
-            jQuery.ajax(url, {
+            let ajaxConfig = {
                 method: type,
                 url: url,
                 contentType: 'application/json; charset=UTF-8',
                 dataType: 'json',
                 data: payload
-            }).done(function (data) {
+            }
+            
+            if (debug) {
+                ajaxConfig.error = function (xhr, textStatus, errorThrown) {
+                    console.error(xhr, textStatus, errorThrown)
+                }
+            }
+
+            jQuery.ajax(url, ajaxConfig).done(function (data) {
                 callback(null, data)
-            }).fail(
-                callback(`Error: ${type} ${endpoint}`)
-            )
+            })
         },
 
         log: function (severity, message) {
@@ -486,16 +500,10 @@ CORE.create_module('settings', function (sb) {
     var settingsFormSubmit = function (event) {
         event.preventDefault()
 
-
-
         const inputs = event.currentTarget.querySelectorAll('input')
         let settings = {}
         for (let input of inputs) settings[input.value] = input.checked
-        sb.post('settings', settings, function (err, data) {
-            if (err) console.error(err)
-
-
-        })
+        sb.post('settings', settings)
 
     }
 
@@ -680,10 +688,6 @@ CORE.create_module('subscribeButtons', function (sb) {
 var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
-
-    // const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
-    // localhost:
-    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
 
     const pushButton = document.querySelector('#pushNoticeButton');
 
