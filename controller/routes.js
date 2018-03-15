@@ -143,7 +143,7 @@ router.post('/webhook/payload/:id', function (req, res) {
 
             console.log('routes 66', user);
             if (user) {
-                if (user._doc.subscription) webPush.toSubscriber(user._doc.subscription, newNotice);
+                if (user._doc.subscription) webPush.toSubscriber(JSON.parse(user._doc.subscription), newNotice);
                 db.saveNotification(user, newNotice);
 
             } else {
