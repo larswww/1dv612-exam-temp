@@ -3,6 +3,11 @@
 var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
+    //live
+    // const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+
+    //local
+    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
 
     const pushButton = document.querySelector('#pushNoticeButton');
 
@@ -122,7 +127,7 @@ CORE.create_module('webPushButton', function (sb) {
             subscriptionDetails.classList.remove('is-invisible');
         } else {
 
-            sb.post('push/unsubscribe','disable subscription', function(err, res) {console.log(err, res)});
+            sb.post('push/unsubscribe',{message:'disable subscription'}, function(err, res) {console.log(err, res)});
 
             subscriptionDetails.classList.add('is-invisible');
         }

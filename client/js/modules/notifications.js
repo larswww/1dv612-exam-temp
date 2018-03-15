@@ -7,7 +7,7 @@ CORE.create_module('notifications', function (sb) {
     var receivedNotifications = function (data) {
         for (let item of data) {
             try {
-                addNotification(item)
+                addNotification(item.notification)
             } catch (e) {
                 console.error('receivedNotifications: invalid notification,', item)
             }
@@ -21,10 +21,10 @@ CORE.create_module('notifications', function (sb) {
         let html = ['<div class="card ">',
             '<div class="card-body">',
             `<h5 class="card-title">${item.title}</h5>`,
-            `<small class="text-muted">${sb.timeSince(item.date)}</small>`,
+            `<small class="text-muted">${sb.timeSince(item.date)} ago</small>`,
             `<div class="clearfix">`,
-            `<img src="${item.icon}" class="rounded float-left w-25" alt="...">`,
-            `<p class="card-text float-right">${item.body.trim()}</p>`,
+            `<img src="${item.icon}" class="rounded float-right w-25" alt="...">`,
+            `<p class="card-text float-left">${item.body.trim()}</p>`,
             `</div>`,
             `<a href="${item.url}" class="card-link">...${item.url.slice(-40)}</a>`,
             '</div>',

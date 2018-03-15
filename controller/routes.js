@@ -41,18 +41,6 @@ router.get('/auth/github/callback',
 
 router.get('/api/notifications', ensureLoggedIn('/login.html'), async function (req, res) {
     let notifications = await dbFacade.getNotificationsFor(req.user._id)
-
-
-    // let sample = require('../test/data/handleLoginSample')
-    // let payloads = require ('../test/data/payloadTypesAndSamples')
-    // let plh = require('../model/helpers/payloadHandler')
-    //
-    // let results = []
-    // for (let key in payloads) {
-    //     results.push(plh(key, payloads[key].example))
-    // }
-
-    // db.handleLogin(req.user).then((data) => {
     res.status(200)
     res.send({message: 'some notifications!', data: notifications})
 
@@ -141,9 +129,8 @@ router.post('/webhook/payload/:id', function (req, res) {
 
         db.getUser(userId).then(user => {
 
-            console.log('routes 66', user);
             if (user) {
-                if (user._doc.subscription) webPush.toSubscriber(JSON.parse(user._doc.subscription), newNotice);
+                if (user._doc.subscription !== 'false') webPush.toSubscriber(JSON.parse(user._doc.subscription), newNotice);
                 db.saveNotification(user, newNotice);
 
             } else {

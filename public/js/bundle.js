@@ -2,12 +2,10 @@
 'use strict';
 
 //live
-const connectionUrl = 'https://github.larsw.net/api/'
-const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+// const connectionUrl = 'https://github.larsw.net/api/'
 
 // local
-//const connectionUrl = 'http://localhost:3000/api/'
-//const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+const connectionUrl = 'http://localhost:3000/api/'
 
 var Sandbox = require('./facade');
 
@@ -436,7 +434,7 @@ CORE.create_module('notifications', function (sb) {
     var receivedNotifications = function (data) {
         for (let item of data) {
             try {
-                addNotification(item)
+                addNotification(item.notification)
             } catch (e) {
                 console.error('receivedNotifications: invalid notification,', item)
             }
@@ -450,10 +448,10 @@ CORE.create_module('notifications', function (sb) {
         let html = ['<div class="card ">',
             '<div class="card-body">',
             `<h5 class="card-title">${item.title}</h5>`,
-            `<small class="text-muted">${sb.timeSince(item.date)}</small>`,
+            `<small class="text-muted">${sb.timeSince(item.date)} ago</small>`,
             `<div class="clearfix">`,
-            `<img src="${item.icon}" class="rounded float-left w-25" alt="...">`,
-            `<p class="card-text float-right">${item.body.trim()}</p>`,
+            `<img src="${item.icon}" class="rounded float-right w-25" alt="...">`,
+            `<p class="card-text float-left">${item.body.trim()}</p>`,
             `</div>`,
             `<a href="${item.url}" class="card-link">...${item.url.slice(-40)}</a>`,
             '</div>',
@@ -688,6 +686,11 @@ CORE.create_module('subscribeButtons', function (sb) {
 var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
+    //live
+    // const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+
+    //local
+    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
 
     const pushButton = document.querySelector('#pushNoticeButton');
 
@@ -807,7 +810,7 @@ CORE.create_module('webPushButton', function (sb) {
             subscriptionDetails.classList.remove('is-invisible');
         } else {
 
-            sb.post('push/unsubscribe','disable subscription', function(err, res) {console.log(err, res)});
+            sb.post('push/unsubscribe',{message:'disable subscription'}, function(err, res) {console.log(err, res)});
 
             subscriptionDetails.classList.add('is-invisible');
         }

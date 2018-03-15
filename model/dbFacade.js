@@ -42,7 +42,6 @@ class DatabaseFacade {
     async hookExists(userid, org) {
         let user = await schema.user.findOne({_id: userid}, {hooks: {$elemMatch: {org: org}}}, {"hooks.$": 1})
         return user.hooks.length === 0;
-
     }
 
     async getGooks(userId) {
@@ -50,10 +49,11 @@ class DatabaseFacade {
         return user.hooks
     }
 
-    async getNotificationsFor(user) {
+    async getNotificationsFor(userid) {
 
         try {
-            return await schema.notification.find({user: user._id}).sort('date')
+            let notifications = await schema.notification.find({user: userid}).sort('date')
+            return notifications
         } catch (e) {
             console.error(e)
             return []
