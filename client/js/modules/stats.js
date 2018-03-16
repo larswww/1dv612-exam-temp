@@ -12,10 +12,10 @@ CORE.create_module('stats', function (sb) {
     }
 
     var updateStats = function (data) {
-        if (data['orgs'].length) createGithubStatsListItem({name: 'Organizations', length: data['orgs'].length})
-        if (data['issues'].length) createGithubStatsListItem({name: 'Issues', length: data['issues'].length})
-        if (data['teams'].length) createGithubStatsListItem({name: 'Teams', length: data['teams'].length})
-        if (data['repos'].length) createGithubStatsListItem({name: 'Repositories', length: data['repos'].length})
+        if (data['orgs']) createGithubStatsListItem({name: 'Organizations', length: data['orgs'].length})
+        if (data['issues']) createGithubStatsListItem({name: 'Issues', length: data['issues'].length})
+        if (data['teams']) createGithubStatsListItem({name: 'Teams', length: data['teams'].length})
+        if (data['repos']) createGithubStatsListItem({name: 'Repositories', length: data['repos'].length})
     }
 
     var createGithubStatsListItem = function (item) {

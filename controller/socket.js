@@ -1,7 +1,7 @@
 'use strict';
 const githubAPI = require('../model/githubAPI');
 const webPush = require('../model/webPush');
-const db = require('../model/db');
+const db = require('../model/oldDb');
 const createNotification = require('../model/helpers/notification');
 let connectedSocket;
 

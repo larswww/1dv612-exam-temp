@@ -1,7 +1,7 @@
 'use strict'
 
 const jwt = require('jsonwebtoken');
-const db = require('./db')
+const db = require('./oldDb')
 let decoded;
 
 module.exports = async function authorize(req, res, next) {

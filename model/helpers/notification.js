@@ -11,11 +11,10 @@ function formatNotification(userID, event, payload) {
 
         notice.notification = payloadHandler(event, payload);
 
-        console.log(notice);
         return notice;
 
     } catch (e) {
-        console.error(e, event, payload);
+        console.error('formatNotification', e, event, payload);
     }
 }
 

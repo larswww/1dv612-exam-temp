@@ -63,6 +63,14 @@ class GithubApi {
             });
 
         })
+    }
+
+    async deleteHook(hookID, org) {
+        let ghorg = this.client.org(org);
+        ghorg.deleteHook(hookID, (something, other, or) => {
+            console.log(something);
+            console.log(other, or);
+        })
 
     }
 

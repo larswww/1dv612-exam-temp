@@ -19,11 +19,7 @@ let subscribeTo = function (subscription) {
 
 function toSubscriber(subscription, notification) {
     let jsonPayload = JSON.stringify(notification);
-
-    console.log('sending webpush: ');
-    console.log(subscription);
-    console.log(jsonPayload);
-
+    console.log('sending webpush')
     webpush.sendNotification(subscription, jsonPayload).then(result => {
         console.log('webpush.sendnotification result: ', result);
     }).catch(error => {
