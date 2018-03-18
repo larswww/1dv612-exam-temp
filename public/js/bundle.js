@@ -2,10 +2,10 @@
 'use strict'
 
 //live
-const connectionUrl = 'https://github.larsw.net/api/'
+//const connectionUrl = 'https://github.larsw.net/api/'
 
 // local
-//const connectionUrl = 'http://localhost:3000/api/'
+const connectionUrl = 'http://localhost:3000/api/'
 
 var Sandbox = require('./facade')
 
@@ -108,7 +108,7 @@ var CORE = (function () {
     },
 
     moment: function (time) {
-      return moment().fromNow(time)
+      return moment(time).fromNow()
     },
 
     request: function (type, endpoint, callback, payload) {
@@ -155,6 +155,10 @@ var CORE = (function () {
 
       cookie: function () {
         return document.cookie
+      },
+
+      findOne: function (selector) {
+        return document.querySelector(selector)
       },
 
       query: function (selector, context) {
@@ -229,12 +233,16 @@ module.exports = CORE
 
 var Sandbox = {
   create: function (core, module_selector) {
-    var CONTAINER = core.dom.query('#' + module_selector)
+    var CONTAINER = core.dom.query(module_selector)
 
     return {
 
       find: function (selector) {
         return CONTAINER.query(selector)
+      },
+
+      findOne: function (selector) {
+        return core.dom.findOne(selector)
       },
 
       addEvent: function (element, evt, fn) {
@@ -362,15 +370,13 @@ module.exports = Sandbox
 },{}],3:[function(require,module,exports){
 var core = require('./core');
 var Sandbox = require('./facade');
-// var socketModule = require('./modules/socketController');
-var dashboard = require('./modules/subscribeButtons');
 var loading = require('./modules/loading')
 var REST = require('./modules/REST')
 var notifications = require('./modules/notifications')
 var stats = require('./modules/stats')
 var settings = require('./modules/settings')
 var serviceWorker = require('./modules/webPushButton')
-},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/loading":5,"./modules/notifications":6,"./modules/settings":7,"./modules/stats":8,"./modules/subscribeButtons":9,"./modules/webPushButton":10}],4:[function(require,module,exports){
+},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/loading":5,"./modules/notifications":6,"./modules/settings":7,"./modules/stats":8,"./modules/webPushButton":9}],4:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -379,14 +385,15 @@ CORE.create_module('REST', function (sb) {
 
     var requestAll = function() {
         for (var item of loadAtStartup) {
-            sb.notify({type: 'start-loading', data: {selector: `#${item}`, target: 'h3'}})
+            sb.notify({type: 'start-loading', data: {selector: `${item}`, target: 'h3'}})
             ajaxRequest(item)
         }
     }
 
     var ajaxRequest = function (event) {
         sb.get(event, function (err, data) {
-            if (!err) sb.notify({type: event, data: data.data}) //ffs
+          sb.notify({type: 'stop-loading', data: event})
+          if (!err) sb.notify({type: event, data: data.data}) //ffs
         })
     }
 
@@ -408,34 +415,31 @@ CORE.create_module('REST', function (sb) {
 },{"../core":1}],5:[function(require,module,exports){
 'use strict'
 
-var CORE = require('../core');
+var CORE = require('../core')
 
 CORE.create_module('loading', function (sb) {
 
-    var start = function (event) {
-        var loaderIcon = `<i class="fas fa-spinner fa-spin" id='${event.selector}Loading'style="font-size:24px"></i>`
-        sb.append_elements(`${event.selector} > ${event.target}`, [loaderIcon])
-    }
+  var start = function (event) {
+    var loaderIcon = [` <i class="fas fa-spinner fa-spin" id='${event.selector}Loading' style="font-size:24px"></i>`]
+    sb.append_elements(`#${event.selector} > ${event.target}`, loaderIcon)
+  }
 
-    var stop = function (event) {
-        sb.remove_element(`${event.selector}Loading`)
-    }
+  var stop = function (event) {
+    sb.remove_element(`#${event}Loading`)
+  }
 
-    return {
-        init: function () {
-            sb.listen({
-                'start-loading': start
+  return {
+    init: function () {
+      sb.listen({
+        'start-loading': start,
+        'stop-loading': stop
+      })
+    },
 
-            })
-            sb.listen({
-                'stop-loading': stop
-            })
-        },
+    destroy: function () {
 
-        destroy: function () {
-
-        },
-    }
+    },
+  }
 })
 },{"../core":1}],6:[function(require,module,exports){
 'use strict'
@@ -453,7 +457,7 @@ CORE.create_module('notifications', function (sb) {
       }
     }
 
-    sb.notify({type: 'stop-loading', data: {selector: selector, target: 'h3'}})
+    // sb.notify({type:'stop-loading', data: {selector: selector, target: 'h3'}})
   }
 
   var addNotification = function (item) {
@@ -471,7 +475,7 @@ CORE.create_module('notifications', function (sb) {
       `<h5 class="card-title">${item.title} `,
       isNew,
       '</h5>',
-      `<small class="text-muted">${sb.timeSince(item.date)} ago</small>`,
+      `<small class="text-muted">${sb.timeSince(item.date)}</small>`,
       `<div class="clearfix">`,
       `<img src="${item.icon}" class="rounded float-right w-25" alt="...">`,
       `<p class="card-text float-left">${item.body.trim()}</p>`,
@@ -485,7 +489,6 @@ CORE.create_module('notifications', function (sb) {
 
   return {
     init: function () {
-      sb.notify({type: 'start-loading', data: {selector: selector, target: 'h3'}})
       sb.listen({
         'notifications': receivedNotifications //todo is it necessary to make it this.buttonState???
 
@@ -498,222 +501,137 @@ CORE.create_module('notifications', function (sb) {
   }
 })
 },{"../core":1}],7:[function(require,module,exports){
-'use strict';
+'use strict'
 
-var CORE = require('../core');
+var CORE = require('../core')
 
 CORE.create_module('settings', function (sb) {
-    var selector = '#settings'
+  var selector = '#settings'
 
-    var recievedSettings = function (data) {
-        console.log('recieved settings ', data)
+  var recievedSettings = function (data) {
+    console.log('recieved settings ', data)
 
-        try {
-            let savedHooks = []
-            for (let hook of data.hooks) savedHooks.push(hook.org)
-            for (let org of data.orgs) addOrgToSettings(org, savedHooks)
+    try {
+      let savedHooks = []
+      for (let hook of data.hooks) savedHooks.push(hook.org)
+      for (let org of data.orgs) addOrgToSettings(org, savedHooks)
 
-        } catch (e) {
-            console.error(e)
-        }
+    } catch (e) {
+      console.error(e)
     }
-    
-    var settingsFormSubmit = function (event) {
-        event.preventDefault()
+  }
 
-        const inputs = event.currentTarget.querySelectorAll('input')
-        let settings = {}
-        for (let input of inputs) settings[input.value] = input.checked
-        sb.post('settings', settings)
+  var settingsFormSubmit = function (event) {
+    event.preventDefault()
+    let button = sb.findOne('#settingsFormButton')
+    button.textContent = 'Updating..'
+    button.disabled = true
 
-    }
+    const inputs = event.currentTarget.querySelectorAll('input')
+    let settings = {}
+    for (let input of inputs) settings[input.value] = input.checked
+    sb.post('settings', settings, function (error, data) {
+      button.textContent = 'Save Changes'
+      button.disabled = false
 
+      if (!error && data.message) successAlert(data.message)
+    })
 
+  }
 
-    var addOrgToSettings = function (org, savedHooks) {
-        let subscribed = ''
-        if (savedHooks.indexOf(org.login) > -1) subscribed = 'checked'
+  var successAlert = function (message) {
+    let html = [`<div class="alert alert-success" role="alert">`,
+      `${message}`,
+    `</div>`]
 
-        let html = [`<div class="form-check">`,
-            `<input class="form-check-input" type="checkbox" value="${org.login}" id="${org.login}" ${subscribed}>`,
-            `<label class="form-check-label" for="${org.login}">${org.login} </label></div>`]
+    sb.append_elements('#settingsForm > div:nth-child(3)', html)
 
-        sb.append_elements(`${selector} > div > div > div.modal-body > form > div.form-group > h6`, html)
+  }
 
-    }
-    // render the settings
-    // but, should be based on current subscription settings?
+  var addOrgToSettings = function (org, savedHooks) {
+    let subscribed = ''
+    if (savedHooks.indexOf(org.login) > -1) subscribed = 'checked'
 
-    return {
-        init: function () {
-            sb.addEvent('#settingsForm', 'submit', settingsFormSubmit)
-            sb.notify({type: 'start-loading', data: {selector: selector, target: 'h3'}})
-            sb.listen({
-                'settings': recievedSettings //todo is it necessary to make it this.buttonState???
+    let html = [`<div class="form-check">`,
+      `<input class="form-check-input" type="checkbox" value="${org.login}" id="${org.login}" ${subscribed}>`,
+      `<label class="form-check-label" for="${org.login}">${org.login} </label></div>`]
 
-            })
-        },
+    sb.append_elements(`${selector} > div > div > div.modal-body > form > div.form-group > h6`, html)
 
+  }
+  // render the settings
+  // but, should be based on current subscription settings?
 
-        destroy: function () {
+  return {
+    init: function () {
+      sb.addEvent('#settingsForm', 'submit', settingsFormSubmit)
+      sb.listen({
+        'settings': recievedSettings //todo is it necessary to make it this.buttonState???
 
-        },
-    }
+      })
+    },
+
+    destroy: function () {
+
+    },
+  }
 })
 },{"../core":1}],8:[function(require,module,exports){
-'use strict';
+'use strict'
 
 var CORE = require('../core')
 
 CORE.create_module('stats', function (sb) {
-    var selector = '#stats'
+  var selector = '#stats'
 
-    var recievedSettings = function (data) {
-        console.log('recieved stats ', data)
-        updateStats(data)
-        sb.notify({type: 'stop-load', data: selector})
-    }
+  var recievedSettings = function (data) {
+    console.log('recieved stats ', data)
+    updateStats(data)
+    //sb.notify({type: 'stop-loading', data: 'stats'})
+  }
 
-    var updateStats = function (data) {
-        if (data['orgs']) createGithubStatsListItem({name: 'Organizations', length: data['orgs'].length})
-        if (data['issues']) createGithubStatsListItem({name: 'Issues', length: data['issues'].length})
-        if (data['teams']) createGithubStatsListItem({name: 'Teams', length: data['teams'].length})
-        if (data['repos']) createGithubStatsListItem({name: 'Repositories', length: data['repos'].length})
-    }
+  var updateStats = function (data) {
+    if (data['orgs']) createGithubStatsListItem({name: 'Organizations', length: data['orgs'].length})
+    if (data['issues']) createGithubStatsListItem({name: 'Issues', length: data['issues'].length})
+    if (data['teams']) createGithubStatsListItem({name: 'Teams', length: data['teams'].length})
+    if (data['repos']) createGithubStatsListItem({name: 'Repositories', length: data['repos'].length})
+  }
 
-    var createGithubStatsListItem = function (item) {
-        let html = [`<li class="list-group-item d-flex justify-content-between align-items-center">`,
-            `${item.name}`,
-            `<span class="badge badge-primary badge-pill">${item.length}</span>`,
-            `</li>`]
+  var createGithubStatsListItem = function (item) {
+    let html = [`<li class="list-group-item d-flex justify-content-between align-items-center">`,
+      `${item.name}`,
+      `<span class="badge badge-primary badge-pill">${item.length}</span>`,
+      `</li>`]
 
-        sb.append_elements(`${selector} > ul`, html)
-    }
+    sb.append_elements(`${selector} > ul`, html)
+  }
 
-    //test
+  //test
 
-    return {
-        init: function () {
-            sb.listen({
-                'stats': recievedSettings // todo is it necessary to make it this.buttonState ?
+  return {
+    init: function () {
+      sb.listen({
+        'stats': recievedSettings // todo is it necessary to make it this.buttonState ?
 
-            })
-        },
+      })
+    },
 
+    destroy: function () {
 
-        destroy: function () {
-
-        },
-    }
+    },
+  }
 })
 },{"../core":1}],9:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');
 
-CORE.create_module('subscribeButtons', function (sb) {
-    let theButton; //todo never undisables if clicking more than one button quickly.
-
-    var subButtonInfo = function (event) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        return {
-            hookUrl: event.currentTarget.getAttribute('data-hook'),
-            org: event.currentTarget.getAttribute('data-org')
-        };
-    };
-
-    var subscribeHook = function (event) {
-        buttonState(false, event.currentTarget);
-
-        sb.notify({
-            type: 'create-hook',
-            data: subButtonInfo(event)
-        });
-
-        sb.removeEvent(event.currentTarget, 'click', subscribeHook);
-        sb.addEvent(event.currentTarget, 'click', unsubscribeHook);
-        subscribed(true, event.currentTarget);
-    };
-
-    var unsubscribeHook = function (event) {
-        buttonState(false, event.currentTarget);
-
-        sb.notify({
-            type: 'delete-hook',
-            data: subButtonInfo(event)
-        });
-
-        sb.removeEvent(event.currentTarget, 'click', unsubscribeHook);
-        sb.addEvent(event.currentTarget, 'click', subscribeHook);
-        subscribed(false, event.currentTarget);
-    };
-
-    var subscribeButtons = function () {
-
-        $('.subs').each(function () {
-            sb.addEvent(this, 'click', subscribeHook);
-        });
-
-        $('.unsubs').each(function () {
-            sb.addEvent(this, 'click', unsubscribeHook);
-        });
-
-    };
-
-    var buttonState = function (stateBool, button) {
-
-        if (stateBool) {
-            theButton.disabled = false;
-
-        } else {
-            theButton = button;
-            theButton.disabled = true;
-
-        }
-    };
-
-    var subscribed = function (bool, target) {
-
-        if (bool) {
-            target.className = 'btn btn-danger unsubs';
-            target.innerText = 'Unsubscribe';
-
-        } else {
-            target.className = 'btn btn-primary subs';
-            target.innerText = 'Subscribe';
-        }
-    };
-
-    return {
-        init: function () {
-            subscribeButtons();
-            sb.listen({
-                'button-state': buttonState //todo is it necessary to make it this.buttonState???
-
-            })
-        },
-
-
-
-        destroy: function () {
-
-        },
-    }
-});
-},{"../core":1}],10:[function(require,module,exports){
-'use strict';
-
-var CORE = require('../core');
-
 CORE.create_module('webPushButton', function (sb) {
     //live
-     const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+    // const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
 
     //local
-    //const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
+    const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
 
     const pushButton = document.querySelector('#pushNoticeButton');
 

@@ -13,7 +13,7 @@ CORE.create_module('notifications', function (sb) {
       }
     }
 
-    sb.notify({type: 'stop-loading', data: {selector: selector, target: 'h3'}})
+    // sb.notify({type:'stop-loading', data: {selector: selector, target: 'h3'}})
   }
 
   var addNotification = function (item) {
@@ -31,7 +31,7 @@ CORE.create_module('notifications', function (sb) {
       `<h5 class="card-title">${item.title} `,
       isNew,
       '</h5>',
-      `<small class="text-muted">${sb.timeSince(item.date)} ago</small>`,
+      `<small class="text-muted">${sb.timeSince(item.date)}</small>`,
       `<div class="clearfix">`,
       `<img src="${item.icon}" class="rounded float-right w-25" alt="...">`,
       `<p class="card-text float-left">${item.body.trim()}</p>`,
@@ -45,7 +45,6 @@ CORE.create_module('notifications', function (sb) {
 
   return {
     init: function () {
-      sb.notify({type: 'start-loading', data: {selector: selector, target: 'h3'}})
       sb.listen({
         'notifications': receivedNotifications //todo is it necessary to make it this.buttonState???
 

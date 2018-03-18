@@ -1,7 +1,5 @@
 var core = require('./core');
 var Sandbox = require('./facade');
-// var socketModule = require('./modules/socketController');
-var dashboard = require('./modules/subscribeButtons');
 var loading = require('./modules/loading')
 var REST = require('./modules/REST')
 var notifications = require('./modules/notifications')

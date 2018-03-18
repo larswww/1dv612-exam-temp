@@ -6,14 +6,15 @@ CORE.create_module('REST', function (sb) {
 
     var requestAll = function() {
         for (var item of loadAtStartup) {
-            sb.notify({type: 'start-loading', data: {selector: `#${item}`, target: 'h3'}})
+            sb.notify({type: 'start-loading', data: {selector: `${item}`, target: 'h3'}})
             ajaxRequest(item)
         }
     }
 
     var ajaxRequest = function (event) {
         sb.get(event, function (err, data) {
-            if (!err) sb.notify({type: event, data: data.data}) //ffs
+          sb.notify({type: 'stop-loading', data: event})
+          if (!err) sb.notify({type: event, data: data.data}) //ffs
         })
     }
 

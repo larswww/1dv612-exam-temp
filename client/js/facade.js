@@ -2,12 +2,16 @@
 
 var Sandbox = {
   create: function (core, module_selector) {
-    var CONTAINER = core.dom.query('#' + module_selector)
+    var CONTAINER = core.dom.query(module_selector)
 
     return {
 
       find: function (selector) {
         return CONTAINER.query(selector)
+      },
+
+      findOne: function (selector) {
+        return core.dom.findOne(selector)
       },
 
       addEvent: function (element, evt, fn) {

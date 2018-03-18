@@ -1,10 +1,10 @@
 'use strict'
 
 //live
-const connectionUrl = 'https://github.larsw.net/api/'
+//const connectionUrl = 'https://github.larsw.net/api/'
 
 // local
-//const connectionUrl = 'http://localhost:3000/api/'
+const connectionUrl = 'http://localhost:3000/api/'
 
 var Sandbox = require('./facade')
 
@@ -107,7 +107,7 @@ var CORE = (function () {
     },
 
     moment: function (time) {
-      return moment().fromNow(time)
+      return moment(time).fromNow()
     },
 
     request: function (type, endpoint, callback, payload) {
@@ -154,6 +154,10 @@ var CORE = (function () {
 
       cookie: function () {
         return document.cookie
+      },
+
+      findOne: function (selector) {
+        return document.querySelector(selector)
       },
 
       query: function (selector, context) {
