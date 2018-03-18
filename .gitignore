@@ -9,3 +9,4 @@ config/environment/production
 push-notifications-master
 model/githubTest.js
 test-file.js
+public/js/bundle.js

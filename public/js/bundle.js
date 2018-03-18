@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict'
 
 //live
@@ -701,7 +701,7 @@ var CORE = require('../core');
 
 CORE.create_module('webPushButton', function (sb) {
     //live
-    // const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
+     //const applicationServerPublicKey = 'BFKuHah3AIxUe0oXiWLeXJ8Yv79wmXRgHgjG2xKjymIuueQICb5E5OIUvAW033bvmfBaZi856_BhByhayfX1yFs';
 
     //local
     const applicationServerPublicKey = 'BIslP8UZWMbRU3RjFFaVfM5-c2jqXw1eno9TVwjt69cJPHwbbtpNYaa99E6CHJ7o4ZPPZhvR5e6fOVa5KyLwg1I';
@@ -812,21 +812,10 @@ CORE.create_module('webPushButton', function (sb) {
 
     function updateSubscriptionOnServer(subscription) {
 
-        const subscriptionJson = document.querySelector('.js-subscription-json');
-        const subscriptionDetails =
-            document.querySelector('.js-subscription-details');
-
         if (subscription) {
-
             sb.post('push/subscribe',subscription ,function(err, res) {console.log(err, res)});
-
-            subscriptionJson.textContent = JSON.stringify(subscription);
-            subscriptionDetails.classList.remove('is-invisible');
         } else {
-
             sb.post('push/unsubscribe',{message:'disable subscription'}, function(err, res) {console.log(err, res)});
-
-            subscriptionDetails.classList.add('is-invisible');
         }
     }
 

@@ -1,10 +1,10 @@
 'use strict'
 
 //live
-const connectionUrl = 'https://github.larsw.net/api/'
+//const connectionUrl = 'https://github.larsw.net/api/'
 
 // local
-//const connectionUrl = 'http://localhost:3000/api/'
+const connectionUrl = 'http://localhost:3000/api/'
 
 var Sandbox = require('./facade')
 
