@@ -115,21 +115,10 @@ CORE.create_module('webPushButton', function (sb) {
 
     function updateSubscriptionOnServer(subscription) {
 
-        const subscriptionJson = document.querySelector('.js-subscription-json');
-        const subscriptionDetails =
-            document.querySelector('.js-subscription-details');
-
         if (subscription) {
-
             sb.post('push/subscribe',subscription ,function(err, res) {console.log(err, res)});
-
-            subscriptionJson.textContent = JSON.stringify(subscription);
-            subscriptionDetails.classList.remove('is-invisible');
         } else {
-
             sb.post('push/unsubscribe',{message:'disable subscription'}, function(err, res) {console.log(err, res)});
-
-            subscriptionDetails.classList.add('is-invisible');
         }
     }
 
