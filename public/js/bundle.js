@@ -440,12 +440,18 @@ CORE.create_module('charts', function (sb) {
       count.push(eventCount[label])
     }
 
-    const data = {
-      datasets: [{
-        data: count
-      }],
+    let colors = []
+    for (let i of labels) {
+      colors.push(dynamicColors())
+    }
 
-      labels: labels
+    const data = {
+      labels: labels,
+      datasets: [{
+        label: 'Event Types in your Organizations',
+        data: count,
+        backgroundColor: colors
+      }]
     }
 
     const options = {
@@ -456,6 +462,14 @@ CORE.create_module('charts', function (sb) {
 
     sb.chart(selector, options)
 
+  }
+
+  //https://jsfiddle.net/5kLbasqp/26/
+  var dynamicColors = function() {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgb(" + r + "," + g + "," + b + ")";
   }
 
   // once done pass each data obj into chart gen
