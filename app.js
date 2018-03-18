@@ -12,6 +12,7 @@ const redisClient = redis.createClient()
 const sessionStore = new RedisStore({client: redisClient})
 const logger = require('morgan')
 const mongoose = require('mongoose')
+const dbFacade = require('./model/dbFacade')
 
 const bodyParser = require('body-parser')
 const handlebars = require('express-handlebars').create({defaultLayout: 'main'})
@@ -74,7 +75,7 @@ let strategy = new GithubStrategy({
 
 }, async function (accessToken, refreshToken, profile, done) {
   profile.accessToken = accessToken
-  let user = await db.handleLogin(profile)
+  let user = await dbFacade.handleLogin(profile)
   if (!user) return done(true)
   user.profile = profile
   done(null, user)

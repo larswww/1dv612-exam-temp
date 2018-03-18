@@ -7,11 +7,44 @@ class DatabaseFacade {
     return await schema.user.findOne({_id: userid})
   }
 
+  async handleLogin (profile) {
+
+    return new Promise((resolve, reject) => {
+
+      schema.user.findOne({id: profile.id, username: profile.username}, function (err, matchingUser) {
+
+        if (err) {
+          reject(err)
+          console.error(err)
+        }
+        // automatically create if users doesnt exist
+        if (matchingUser === null) {
+          let newUser = new schema.user({
+            id: profile.id,
+            username: profile.username,
+            accessToken: profile.accessToken,
+            _raw: profile._raw,
+          })
+
+          newUser.save().then(() => {
+            resolve(newUser)
+          })
+        }
+
+        if (matchingUser) {
+          matchingUser.accessToken = profile.accessToken
+          resolve(matchingUser)
+          matchingUser.save()
+        }
+      })
+    })
+  }
+
   async getUserByGithubId (githubid) {
     return await schema.user.findOne({id: githubid})
   }
 
-  async updateLastLogin(user) {
+  async updateLastLogin (user) {
     user.lastLogin = Date.now()
     await user.save()
   }
