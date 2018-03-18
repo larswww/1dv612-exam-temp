@@ -132,6 +132,11 @@ var CORE = (function () {
       })
     },
 
+    chart: function (selector, options) {
+      var ctx = document.getElementById(`${selector}Chart`)
+      var myChart = new Chart(ctx, options)
+    },
+
     log: function (severity, message) {
       if (debug) {
         console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](message)
@@ -147,10 +152,6 @@ var CORE = (function () {
 
       remove: function (selector) {
         jQuery(selector).remove()
-      },
-
-      chart: function (type, settings) {
-        return new Morris[type](settings)
       },
 
       cookie: function () {
@@ -345,7 +346,9 @@ var Sandbox = {
         core.request('POST', endpoint, callback, data)
       },
 
-      chart: function () {
+      chart: function (selector, options) {
+        core.dom.append_element(selector, `<canvas id="${selector}Chart" width="400" height="400"></canvas>`)
+        core.chart(selector, options)
 
       },
 
@@ -374,9 +377,10 @@ var loading = require('./modules/loading')
 var REST = require('./modules/REST')
 var notifications = require('./modules/notifications')
 var stats = require('./modules/stats')
+var charts = require('./modules/charts')
 var settings = require('./modules/settings')
 var serviceWorker = require('./modules/webPushButton')
-},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/loading":5,"./modules/notifications":6,"./modules/settings":7,"./modules/stats":8,"./modules/webPushButton":9}],4:[function(require,module,exports){
+},{"./core":1,"./facade":2,"./modules/REST":4,"./modules/charts":5,"./modules/loading":6,"./modules/notifications":7,"./modules/settings":8,"./modules/stats":9,"./modules/webPushButton":10}],4:[function(require,module,exports){
 'use strict';
 var CORE = require('../core');
 
@@ -417,6 +421,61 @@ CORE.create_module('REST', function (sb) {
 
 var CORE = require('../core')
 
+CORE.create_module('charts', function (sb) {
+  var selector = '#stats'
+
+  var notificationsChart = function (event) {
+    let eventCount = {}
+
+    for (let noticeObj of event) {
+      if (!eventCount[noticeObj.event]) eventCount[noticeObj.event] = 0
+      eventCount[noticeObj.event] += 1
+    }
+
+    let labels = []
+    let count = []
+
+    for (let label in eventCount) {
+      labels.push(label)
+      count.push(eventCount[label])
+    }
+
+    const data = {
+      datasets: [{
+        data: count
+      }],
+
+      labels: labels
+    }
+
+    const options = {
+      type: 'pie',
+      data: data,
+    }
+
+
+    sb.chart(selector, options)
+
+  }
+
+  // once done pass each data obj into chart gen
+  return {
+    init: function () {
+      sb.listen({
+        'notifications': notificationsChart,
+      })
+    },
+
+    destroy: function () {
+
+    },
+  }
+})
+},{"../core":1}],6:[function(require,module,exports){
+'use strict'
+
+var CORE = require('../core')
+
 CORE.create_module('loading', function (sb) {
 
   var start = function (event) {
@@ -441,7 +500,7 @@ CORE.create_module('loading', function (sb) {
     },
   }
 })
-},{"../core":1}],6:[function(require,module,exports){
+},{"../core":1}],7:[function(require,module,exports){
 'use strict'
 var CORE = require('../core')
 
@@ -500,7 +559,7 @@ CORE.create_module('notifications', function (sb) {
     },
   }
 })
-},{"../core":1}],7:[function(require,module,exports){
+},{"../core":1}],8:[function(require,module,exports){
 'use strict'
 
 var CORE = require('../core')
@@ -576,7 +635,7 @@ CORE.create_module('settings', function (sb) {
     },
   }
 })
-},{"../core":1}],8:[function(require,module,exports){
+},{"../core":1}],9:[function(require,module,exports){
 'use strict'
 
 var CORE = require('../core')
@@ -621,7 +680,7 @@ CORE.create_module('stats', function (sb) {
     },
   }
 })
-},{"../core":1}],9:[function(require,module,exports){
+},{"../core":1}],10:[function(require,module,exports){
 'use strict';
 
 var CORE = require('../core');

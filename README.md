@@ -10,3 +10,12 @@ Github: via hbs and before
 App: via sockets as they come
 - Saved hooks, notifications
 - anything from the app post-render via ws.
+
+
+
+#Todo
+
+- [ ] Remove unused modules and code
+- [ ] JWT Implementation
+- [ ] Chart
+- [ ] Add Org to notification obj

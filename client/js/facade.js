@@ -114,7 +114,9 @@ var Sandbox = {
         core.request('POST', endpoint, callback, data)
       },
 
-      chart: function () {
+      chart: function (selector, options) {
+        core.dom.append_element(selector, `<canvas id="${selector}Chart" width="400" height="400"></canvas>`)
+        core.chart(selector, options)
 
       },
 

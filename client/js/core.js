@@ -131,6 +131,11 @@ var CORE = (function () {
       })
     },
 
+    chart: function (selector, options) {
+      var ctx = document.getElementById(`${selector}Chart`)
+      var myChart = new Chart(ctx, options)
+    },
+
     log: function (severity, message) {
       if (debug) {
         console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](message)
@@ -146,10 +151,6 @@ var CORE = (function () {
 
       remove: function (selector) {
         jQuery(selector).remove()
-      },
-
-      chart: function (type, settings) {
-        return new Morris[type](settings)
       },
 
       cookie: function () {
