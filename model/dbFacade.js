@@ -113,7 +113,7 @@ class DatabaseFacade {
       updated.subscription = JSON.stringify(subscription)
       updated.save()
     } catch (e) {
-      console.error(`saveSubscription: `, JSON.stringify(e))
+      console.error(`saveSubscription: `, e)
     }
   }
 
