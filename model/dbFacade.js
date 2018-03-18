@@ -109,12 +109,9 @@ class DatabaseFacade {
   async saveSubscription (subscription, profile) {
 
     try {
-      const updated = schema.user.findOneAndUpdate({id: profile.id, username: profile.username},
-        {subscription: JSON.stringify(subscription)})
-
-      if (!updated) console.log('no user to save subscription for')
-      if (updated) console.log('subscription saved')
-
+      const updated = schema.user.findOne({id: profile.id, username: profile.username})
+      updated.subscription = JSON.stringify(subscription)
+      updated.save()
     } catch (e) {
       console.error(`saveSubscription: `, JSON.stringify(e))
     }
