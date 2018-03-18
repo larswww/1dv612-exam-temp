@@ -16,7 +16,6 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const handlebars = require('express-handlebars').create({defaultLayout: 'main'})
 
-const db = require('./model/oldDb')
 const seedDb = require('./test/seedDb')
 
 let server
@@ -33,21 +32,6 @@ async function startServer () {
 
   await mongoose.connect(process.env.LOCAL_CONNECTION_STRING, {useMongoClient: true})
   await seedDb()
-
-  // const io = require('socket.io')(server);
-  // const passportSocketIo = require('passport.socketio');
-  //
-  // io.use(passportSocketIo.authorize({
-  //     cookieParser: cookieParser,
-  //     key: 'connect.sid',
-  //     secret: process.env.SESSION_SECRET,
-  //     store: sessionStore,
-  // }));
-  //
-  // io.on('connection', socket => {
-  //     socketController.activate(socket);
-  // });
-
 }
 
 app.set('port', process.env.PORT)
