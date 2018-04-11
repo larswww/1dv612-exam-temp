@@ -6,6 +6,7 @@ const connectionUrl = 'https://github.larsw.net/api/'
 // local
 //const connectionUrl = 'http://localhost:3000/api/'
 
+//https://code.tutsplus.com/tutorials/writing-modular-javascript--net-14746
 var Sandbox = require('./facade')
 
 var CORE = (function () {
